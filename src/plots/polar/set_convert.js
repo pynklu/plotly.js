@@ -158,6 +158,9 @@ function setConvertAngular(ax, polarLayout) {
         var rad2t, t2rad;
 
         switch(axType) {
+            case 'indicator':
+                c2rad = t2rad = function(v) { return (v - ax.range[0]) / (ax.range[1] - ax.range[0]) * Math.PI; };
+                break;
             case 'linear':
                 c2rad = rad2c = Lib.identity;
                 t2rad = deg2rad;
