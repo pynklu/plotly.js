@@ -449,8 +449,8 @@ module.exports = function setConvert(ax, fullLayout) {
     };
 
     // set scaling to pixels
-    ax.setScale = function(usePrivateRange) {
-        var gs = fullLayout._size;
+    ax.setScale = function(usePrivateRange, constrainedSize) {
+        var gs = constrainedSize || fullLayout._size;
 
         // make sure we have a domain (pull it in from the axis
         // this one is overlaying if necessary)
