@@ -17,7 +17,7 @@ var extendFlat = require('../../lib/extend').extendFlat;
 var templatedArray = require('../../plot_api/plot_template').templatedArray;
 
 module.exports = {
-    domain: domainAttrs({name: 'parcoords', trace: true, editType: 'plot'}), // TODO: test
+    domain: domainAttrs({name: 'parcoords', trace: true, editType: 'plot'}),
 
     labelangle: {
         valType: 'angle',
@@ -31,15 +31,15 @@ module.exports = {
     },
 
     labelfont: fontAttrs({
-        editType: 'plot', // TODO: test
+        editType: 'plot',
         description: 'Sets the font for the `dimension` labels.'
     }),
     tickfont: fontAttrs({
-        editType: 'plot', // TODO: test
+        editType: 'plot',
         description: 'Sets the font for the `dimension` tick values.'
     }),
     rangefont: fontAttrs({
-        editType: 'plot', // TODO: test
+        editType: 'plot',
         description: 'Sets the font for the `dimension` range values.'
     }),
 
@@ -47,7 +47,7 @@ module.exports = {
         label: {
             valType: 'string',
             role: 'info',
-            editType: 'plot', // TODO: test
+            editType: 'plot',
             description: 'The shown name of the dimension.'
         },
         // TODO: better way to determine ordinal vs continuous axes,
@@ -71,17 +71,17 @@ module.exports = {
             valType: 'boolean',
             dflt: true,
             role: 'info',
-            editType: 'plot', // TODO: test
+            editType: 'plot',
             description: 'Shows the dimension when set to `true` (the default). Hides the dimension for `false`.'
         },
         range: {
             valType: 'info_array',
             role: 'info',
             items: [
-                {valType: 'number', editType: 'plot'}, // TODO: test
-                {valType: 'number', editType: 'plot'} // TODO: test
+                {valType: 'number', editType: 'plot'},
+                {valType: 'number', editType: 'plot'}
             ],
-            editType: 'plot', // TODO: test
+            editType: 'plot',
             description: [
                 'The domain range that represents the full, shown axis extent. Defaults to the `values` extent.',
                 'Must be an array of `[fromValue, toValue]` with finite numbers as elements.'
@@ -93,10 +93,10 @@ module.exports = {
             freeLength: true,
             dimensions: '1-2',
             items: [
-                {valType: 'number', editType: 'plot'}, // TODO: test
-                {valType: 'number', editType: 'plot'} // TODO: test
+                {valType: 'number', editType: 'plot'},
+                {valType: 'number', editType: 'plot'}
             ],
-            editType: 'plot', // TODO: test
+            editType: 'plot',
             description: [
                 'The domain range to which the filter on the dimension is constrained. Must be an array',
                 'of `[fromValue, toValue]` with `fromValue <= toValue`, or if `multiselect` is not',
@@ -107,7 +107,7 @@ module.exports = {
             valType: 'boolean',
             dflt: true,
             role: 'info',
-            editType: 'plot', // TODO: test
+            editType: 'plot',
             description: 'Do we allow multiple selection ranges or just a single range?'
         },
         values: {
