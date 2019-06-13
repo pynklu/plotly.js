@@ -12,7 +12,7 @@ module.exports = {
     moduleType: 'trace',
     name: 'indicator',
     basePlotModule: require('./base_plot'),
-    categories: [],
+    categories: ['svg'],
     animatable: true,
 
     attributes: require('./attributes'),

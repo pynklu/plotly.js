@@ -4,7 +4,10 @@
       "x": [0.25, 1],
       "y": [0.0833, 0.25]
     },
-    "title": {"text": "<b>Revenue</b><br><span style='color: gray; font-size:0.8em'>U.S. $ (1,000s)</span>"},
+    "title": {
+      "text": "<b>Revenue</b><br><span style='color: gray; font-size:0.8em'>U.S. $ (1,000s)</span>",
+      "font": {"size": 14}
+    },
     "type": "indicator",
     "mode": "bignumber+gauge+delta",
     "max": 300,
@@ -37,7 +40,7 @@
       "x": [0.25, 1],
       "y": [0.4166, 0.5833]
     },
-    "title": {"text": "<b>Profit</b><br><span style='color: gray; font-size:0.8em'>%</span>"},
+    "title": {"text": "<b>Profit</b>", "font": {"size": 14}},
     "type": "indicator",
     "mode": "bignumber+gauge+delta",
     "max": 100,
@@ -72,7 +75,10 @@
       "x": [0.25, 1],
       "y": [0.7499, 0.9166]
     },
-    "title": {"text" :"<b>Avg Order Size</b><br><span style='color: gray; font-size:0.8em'>U.S. $</span>"},
+    "title": {
+      "text" :"<b>Avg Order Size</b><br><span style='color: gray; font-size:0.8em'>U.S. $</span>",
+      "font": {"size": 14}
+    },
     "type": "indicator",
     "mode": "bignumber+gauge+delta",
     "max": 300,

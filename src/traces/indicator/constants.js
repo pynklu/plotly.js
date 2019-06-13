@@ -9,15 +9,17 @@
 'use strict';
 
 module.exports = {
+    // Defaults for delta
     INCREASING_COLOR: '#3D9970',
     DECREASING_COLOR: '#FF4136',
     DIRSYMBOL: {
         increasing: '▲',
         decreasing: '▼'
     },
-    bulletHeight: 35,
+    defaultNumberFontSize: 80,
     bulletTitleSize: 0.25,
     bulletPadding: 0.025,
     innerRadius: 0.75,
-    valueHeight: 0.5 // thickness of value bars relative to full thickness
+    valueHeight: 0.5, // thickness of value bars relative to full thickness,
+    titlePadding: 10
 };
