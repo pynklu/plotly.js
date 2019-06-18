@@ -17,7 +17,7 @@ module.exports = {
         decreasing: '▼'
     },
     defaultNumberFontSize: 80,
-    bulletTitleSize: 0.25,
+    bulletNumberDomainSize: 0.25,
     bulletPadding: 0.025,
     innerRadius: 0.75,
     valueHeight: 0.5, // thickness of value bars relative to full thickness,

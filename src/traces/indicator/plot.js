@@ -150,14 +150,14 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             }
             if(isBullet) {
                 var padding = cn.bulletPadding;
-                var p = (1 - cn.bulletTitleSize) + padding;
+                var p = (1 - cn.bulletNumberDomainSize) + padding;
                 numbersX = size.l + (p + (1 - p) * position[bignumberAlign]) * size.w;
                 bignumberFontSize = Math.min(0.2 * size.w / (fmt(trace.max).length), bulletHeight);
                 titleX = size.l - padding * size.w; // Outside domain, on the left
                 titleY = numbersY;
 
                 numbersScaler = function(el) {
-                    return fitTextInsideBox(el, (cn.bulletTitleSize - padding) * size.w, size.h);
+                    return fitTextInsideBox(el, (cn.bulletNumberDomainSize - padding) * size.w, size.h);
                 };
             }
         }
@@ -514,8 +514,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             gaugeBorder.exit().remove();
 
             // Draw bullet
-            var bulletLeft = 0;
-            var bulletRight = ((hasBigNumber || hasDelta) ? (1 - cn.bulletTitleSize) : 1.0);
+            var bulletLeft = domain.x[0];
+            var bulletRight = domain.x[1] * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
 
             data = cd.filter(function() {return isBullet;});
             var innerBulletHeight = trace.gauge.value.height * bulletHeight;
@@ -528,7 +528,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             // force full redraw of labels and ticks
             ax = mockAxis(gd, opts, range);
             ax.domain = [bulletLeft, bulletRight];
-            ax.setScale(false, size);
+            ax.setScale();
 
             vals = Axes.calcTicks(ax);
             transFn = Axes.makeTransFn(ax);
