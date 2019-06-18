@@ -12,18 +12,15 @@ module.exports = {
     moduleType: 'trace',
     name: 'indicator',
     basePlotModule: require('./base_plot'),
-    categories: ['svg'],
+    categories: ['svg', 'noOpacity', 'noHover'],
     animatable: true,
 
     attributes: require('./attributes'),
-    layoutAttributes: require('./layout_attributes'),
     supplyDefaults: require('./defaults').supplyDefaults,
-    supplyLayoutDefaults: require('./layout_defaults'),
 
     calc: require('./calc').calc,
 
     plot: require('./plot'),
-    style: require('./style'),
 
     meta: {
         description: [
