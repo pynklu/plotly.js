@@ -70,7 +70,7 @@ var gaugeBarAttrs = {
     editType: 'calc'
 };
 
-var stepsAttrs = templatedArray('target', extendDeep({}, gaugeBarAttrs, {
+var stepsAttrs = templatedArray('threshold', extendDeep({}, gaugeBarAttrs, {
     range: {
         valType: 'info_array',
         role: 'info',

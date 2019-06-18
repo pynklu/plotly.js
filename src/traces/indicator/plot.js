@@ -515,7 +515,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
             // Draw bullet
             var bulletLeft = domain.x[0];
-            var bulletRight = domain.x[1] * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
+            var bulletRight = domain.x[0] + (domain.x[1] - domain.x[0]) * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
 
             data = cd.filter(function() {return isBullet;});
             var innerBulletHeight = trace.gauge.value.height * bulletHeight;
@@ -526,16 +526,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
             // Draw cartesian axis
             // force full redraw of labels and ticks
-            ax = mockAxis(gd, opts, range);
-            ax.domain = [bulletLeft, bulletRight];
-            ax.setScale();
-
-            vals = Axes.calcTicks(ax);
-            transFn = Axes.makeTransFn(ax);
-            tickSign = Axes.getTickSigns(ax)[2];
-
-            // var g = d3.select(this);
-            // var axLayer = Lib.ensureSingle(g, 'g', 'gaugeaxis', function(s) { s.classed('crisp', true); });
             var bulletaxis = d3.select(this).selectAll('g.bulletaxis').data(data);
             bulletaxis.enter().append('g')
               .classed('bulletaxis', true)
@@ -543,21 +533,34 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             bulletaxis.selectAll('g.' + ax._id + 'tick,path').remove();
             bulletaxis.exit().remove();
 
-            shift = size.t + size.h;
-            if(ax.visible) {
-                Axes.drawTicks(gd, ax, {
-                    vals: ax.ticks === 'inside' ? Axes.clipEnds(ax, vals) : vals,
-                    layer: bulletaxis,
-                    path: Axes.makeTickPath(ax, shift, tickSign),
-                    transFn: transFn
-                });
+            if(isBullet) {
+                ax = mockAxis(gd, opts, range);
+                ax.domain = [bulletLeft, bulletRight];
+                ax.setScale();
 
-                Axes.drawLabels(gd, ax, {
-                    vals: vals,
-                    layer: bulletaxis,
-                    transFn: transFn,
-                    labelFns: Axes.makeLabelFns(ax, shift)
-                });
+                vals = Axes.calcTicks(ax);
+                transFn = Axes.makeTransFn(ax);
+                tickSign = Axes.getTickSigns(ax)[2];
+                // var g = d3.select(this);
+                // var axLayer = Lib.ensureSingle(g, 'g', 'gaugeaxis', function(s) { s.classed('crisp', true); });
+
+
+                shift = size.t + size.h;
+                if(ax.visible) {
+                    Axes.drawTicks(gd, ax, {
+                        vals: ax.ticks === 'inside' ? Axes.clipEnds(ax, vals) : vals,
+                        layer: bulletaxis,
+                        path: Axes.makeTickPath(ax, shift, tickSign),
+                        transFn: transFn
+                    });
+
+                    Axes.drawLabels(gd, ax, {
+                        vals: vals,
+                        layer: bulletaxis,
+                        transFn: transFn,
+                        labelFns: Axes.makeLabelFns(ax, shift)
+                    });
+                }
             }
 
             // Draw bullet background, steps and thresholds
