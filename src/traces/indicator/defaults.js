@@ -27,8 +27,8 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     coerce('mode');
     coerce('value');
     coerce('valueformat');
-    coerce('min');
-    coerce('max', 1.5 * traceOut.value);
+    coerce('vmin');
+    coerce('vmax', 1.5 * traceOut.value);
 
     handleDomainDefaults(traceOut, layout, coerce);
 

@@ -11,7 +11,7 @@
     "ticker": {
       "showticker": true
     },
-    "max": 500,
+    "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
       "axis": {
@@ -47,7 +47,7 @@
     "ticker": {
       "showticker": true
     },
-    "max": 500,
+    "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
       "axis": {
@@ -83,7 +83,7 @@
     "ticker": {
       "showticker": true
     },
-    "max": 500,
+    "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
       "axis": {
@@ -119,7 +119,7 @@
     "ticker": {
       "showticker": true
     },
-    "max": 500,
+    "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
       "axis": {
@@ -155,7 +155,7 @@
     "ticker": {
       "showticker": true
     },
-    "max": 500,
+    "vmax": 500,
     "delta": {"reference": 400, "position": "top"},
     "gauge": {
       "axis": {

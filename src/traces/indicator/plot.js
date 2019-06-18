@@ -77,7 +77,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             b: fullLayout._size.b + fullLayout._size.h * (domain.y[0])
         });
 
-        var range = [trace.min, trace.max];
+        var range = [trace.vmin, trace.vmax];
 
         // title
         var titleAnchor = isBullet ? anchor.right : anchor[trace.title.align];
@@ -111,7 +111,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var innerRadius = cn.innerRadius * radius;
         var gaugePosition = [0, 0];
         function valueToAngle(v) {
-            var angle = (v - trace.min) / (trace.max - trace.min) * Math.PI - theta;
+            var angle = (v - trace.vmin) / (trace.vmax - trace.vmin) * Math.PI - theta;
             if(angle < -theta) return -theta;
             if(angle > theta) return theta;
             return angle;
@@ -152,7 +152,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 var padding = cn.bulletPadding;
                 var p = (1 - cn.bulletNumberDomainSize) + padding;
                 numbersX = size.l + (p + (1 - p) * position[bignumberAlign]) * size.w;
-                bignumberFontSize = Math.min(0.2 * size.w / (fmt(trace.max).length), bulletHeight);
+                bignumberFontSize = Math.min(0.2 * size.w / (fmt(trace.vmax).length), bulletHeight);
                 titleX = size.l - padding * size.w; // Outside domain, on the left
                 titleY = numbersY;
 
@@ -323,7 +323,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             //           y: gaugeFontSize,
             //           'text-anchor': 'middle'
             //       })
-            //       .text(fmt(trace.min));
+            //       .text(fmt(trace.vmin));
             //
             // var maxText = gauge.selectAll('text.max').data(cd);
             // maxText.enter().append('text').classed('max', true);
@@ -335,7 +335,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             //           y: gaugeFontSize,
             //           'text-anchor': 'middle'
             //       })
-            //       .text(fmt(trace.max));
+            //       .text(fmt(trace.vmax));
 
             function arcPathGenerator(size) {
                 return d3.svg.arc()
@@ -348,7 +348,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var opts = trace.gauge.axis;
             var ax = mockAxis(gd, opts);
             ax.type = 'indicator';
-            ax.range = [trace.min, trace.max];
+            ax.range = [trace.vmin, trace.vmax];
             ax._id = 'angularaxis';
             ax.direction = 'clockwise';
             ax.rotation = 180;
@@ -432,7 +432,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
             // Reexpress our background attributes for drawing
             var gaugeBg = {
-                range: [trace.min, trace.max],
+                range: [trace.vmin, trace.vmax],
                 color: trace.gauge.bgcolor,
                 line: {
                     color: trace.gauge.bordercolor,
@@ -442,7 +442,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             };
 
             var gaugeOutline = {
-                range: [trace.min, trace.max],
+                range: [trace.vmin, trace.vmax],
                 color: 'rgba(0, 0, 0, 0)',
                 line: {
                     color: trace.gauge.bordercolor,
@@ -541,11 +541,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 vals = Axes.calcTicks(ax);
                 transFn = Axes.makeTransFn(ax);
                 tickSign = Axes.getTickSigns(ax)[2];
-                // var g = d3.select(this);
-                // var axLayer = Lib.ensureSingle(g, 'g', 'gaugeaxis', function(s) { s.classed('crisp', true); });
-
 
                 shift = size.t + size.h;
+                console.log(size);
                 if(ax.visible) {
                     Axes.drawTicks(gd, ax, {
                         vals: ax.ticks === 'inside' ? Axes.clipEnds(ax, vals) : vals,
@@ -588,10 +586,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .ease(transitionOpts.easing)
                   .each('end', function() { onComplete && onComplete(); })
                   .each('interrupt', function() { onComplete && onComplete(); })
-                  .attr('width', Math.max(0, ax.c2p(Math.min(trace.max, cd[0].y))));
+                  .attr('width', Math.max(0, ax.c2p(Math.min(trace.vmax, cd[0].y))));
             } else {
                 fgBullet.select('rect')
-                  .attr('width', Math.max(0, ax.c2p(Math.min(trace.max, cd[0].y))));
+                  .attr('width', Math.max(0, ax.c2p(Math.min(trace.vmax, cd[0].y))));
             }
             fgBullet.exit().remove();
 

@@ -119,7 +119,7 @@ describe('Indicator plot', function() {
                 return Plotly.relayout(gd, {width: 200, height: 200});
             })
             .then(function() {
-                checkNumbersScale(0.20, 'should scale down');
+                checkNumbersScale(0.16, 'should scale down');
                 return Plotly.relayout(gd, {width: 400, height: 400});
             })
             .then(function() {
@@ -140,11 +140,11 @@ describe('Indicator plot', function() {
                 return Plotly.restyle(gd, 'value', [1E6]);
             })
             .then(function() {
-                checkNumbersScale(0.69, 'should scale down');
+                checkNumbersScale(0.67, 'should scale down');
                 return Plotly.restyle(gd, 'value', [1]);
             })
             .then(function() {
-                checkNumbersScale(0.69, 'should not scale up');
+                checkNumbersScale(0.67, 'should not scale up');
             })
             .catch(failTest)
             .then(done);

@@ -75,10 +75,10 @@ var stepsAttrs = templatedArray('threshold', extendDeep({}, gaugeBarAttrs, {
         valType: 'info_array',
         role: 'info',
         items: [
-            {valType: 'number', editType: 'axrange'},
-            {valType: 'number', editType: 'axrange'}
+            {valType: 'number', editType: 'plot'},
+            {valType: 'number', editType: 'plot'}
         ],
-        editType: 'axrange',
+        editType: 'plot',
         // impliedEdits: {'autorange': false},
         description: [
             'Sets the range of this axis.',
@@ -136,8 +136,7 @@ module.exports = {
     // position
     domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
 
-    // TODO: min and max could be replaced by axis range
-    min: {
+    vmin: {
         valType: 'number',
         editType: 'calc',
         role: 'info',
@@ -146,7 +145,7 @@ module.exports = {
             'Sets the minimum value of the gauge.'
         ].join(' ')
     },
-    max: {
+    vmax: {
         valType: 'number',
         editType: 'calc',
         role: 'info',

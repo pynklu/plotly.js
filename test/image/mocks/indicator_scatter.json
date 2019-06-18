@@ -12,7 +12,7 @@
       "showticker": true,
       "showpercentage": true
     },
-    "max": 500,
+    "vmax": 500,
     "value": 492
   }, {
     "name": "Users online",
