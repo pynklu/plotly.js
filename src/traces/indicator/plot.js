@@ -130,164 +130,21 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 };
             }
         }
-        var bignumberFontSize = trace.number.font.size;
-        var deltaFontSize = trace.delta.font.size;
 
-        // number indicators
-
-        // Position delta relative to bignumber
-        var deltaDy = 0;
-        var deltaX = 0;
-        var bignumberY;
-        var deltaAnchor = numbersAnchor;
-
-        if(hasDelta && hasBigNumber) {
-            if(trace.delta.position === 'bottom') {
-                // deltaDy = (bignumberFontSize / 2 + deltaFontSize / 2);
-                deltaDy = deltaFontSize * 1.5;
-            }
-            if(trace.delta.position === 'top') {
-                deltaDy = -bignumberFontSize + MID_SHIFT * deltaFontSize;
-            }
-            if(trace.delta.position === 'right') {
-                deltaX = undefined;
-            }
-            if(trace.delta.position === 'left') {
-                deltaX = undefined;
-                bignumberY = MID_SHIFT * bignumberFontSize / 2;
-            }
-        }
-        deltaDy -= MID_SHIFT * deltaFontSize;
-
-        // bignumber
-        var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
-        var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
-        var bignumberSuffix = trace.number.suffix;
-        if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;
-
-        // delta
-        var deltaAx = mockAxis(gd, {tickformat: trace.delta.valueformat});
-        var deltaFmt = function(v) { return Axes.tickText(deltaAx, v).text;};
-        if(!trace._deltaLastValue) trace._deltaLastValue = 0;
-        var deltaValue = function(d) {
-            var value = trace.delta.showpercentage ? d.relativeDelta : d.delta;
-            return value;
+        // Draw numbers
+        var numbersOpts = {
+            numbersX: numbersX,
+            numbersY: numbersY,
+            numbersAnchor: numbersAnchor,
+            numbersScaler: numbersScaler,
+            hasTransition: hasTransition,
+            transitionOpts: transitionOpts,
+            onComplete: onComplete
         };
-        var deltaFormatText = function(value) {
-            if(value === 0) return '-';
-            return (value > 0 ? trace.delta.increasing.symbol : trace.delta.decreasing.symbol) + deltaFmt(value);
-        };
-        var deltaFill = function(d) {
-            return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
-        };
-        var numbers = d3.select(this).selectAll('text.numbers').data(cd);
-        numbers.enter().append('text').classed('numbers', true);
-
-        var data = [];
-        var numberSpec = {
-            'text-anchor': numbersAnchor,
-            class: 'number'
-        };
-        var deltaSpec = {
-            'text-anchor': deltaAnchor,
-            class: 'delta'
-        };
-        if(hasBigNumber) data.push(numberSpec);
-        if(hasDelta) data.push(deltaSpec);
-        if(trace.delta.position === 'left') data.reverse();
-        var sel = numbers.selectAll('tspan').data(data);
-        sel.enter().append('tspan');
-        sel
-            .attr('text-anchor', function(d) {return d['text-anchor'];})
-            .attr('class', function(d) { return d.class;})
-            .attr('dx', function(d, i) {
-                var pos = trace.delta.position;
-                // Add padding to the second tspan when it's a one-liner
-                if(i === 1 && (pos === 'left' || pos === 'right')) return 10;
-                return null;
-            });
-        sel.exit().remove();
-
-        // bignumber
-        var number = numbers.select('tspan.number');
-        number
-            .call(Drawing.font, trace.number.font)
-            .attr('x', undefined)
-            .attr('dy', bignumberY);
-
-        // delta
-        var delta = numbers.select('tspan.delta');
-        delta
-            .call(Drawing.font, trace.delta.font)
-            .style('fill', deltaFill)
-            .attr('x', deltaX)
-            .attr('dy', deltaDy);
-
-        if(hasTransition) {
-            number
-                .transition()
-                .duration(transitionOpts.duration)
-                .ease(transitionOpts.easing)
-                .each('end', function() { onComplete && onComplete(); })
-                .each('interrupt', function() { onComplete && onComplete(); })
-                .attrTween('text', function() {
-                    var that = d3.select(this);
-                    var interpolator = d3.interpolateNumber(cd[0].lastY, cd[0].y);
-                    return function(t) {
-                        that.text(fmt(interpolator(t)) + bignumberSuffix);
-                    };
-                });
-
-            delta
-                .transition()
-                .duration(transitionOpts.duration)
-                .ease(transitionOpts.easing)
-                .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
-                .each('interrupt', function() { onComplete && onComplete(); })
-                .attrTween('text', function(d) {
-                    var that = d3.select(this);
-                    var to = deltaValue(d);
-                    var from = trace._deltaLastValue;
-                    var interpolator = d3.interpolateNumber(from, to);
-                    return function(t) {
-                        that.text(deltaFormatText(interpolator(t)));
-                    };
-                });
-        } else {
-            number.text(fmt(cd[0].y) + bignumberSuffix);
-
-            delta.text(function(d) {
-                return deltaFormatText(deltaValue(d));
-            });
-        }
-
-        // Resize numbers to fit within space and position
-        var numbersbBox;
-        numbers.attr('transform', function() {
-            var m = numbersScaler(numbers);
-            var key = m[2];
-            if(!(trace._numbersScale && trace._numbersScale.key === key)) {
-                trace._numbersScale = {key: key, value: 1};
-            }
-            var scaleRatio = trace._numbersScale.value = Math.min(trace._numbersScale.value, m[0]);
-            numbersbBox = m[1];
-            var translateY;
-            if(isAngular) {
-                // bottom-align
-                translateY = numbersY - scaleRatio * numbersbBox.bottom;
-            } else {
-                // center-align
-                translateY = numbersY - scaleRatio * (numbersbBox.top + numbersbBox.bottom) / 2;
-            }
-
-            // If no gauge, compute title position relative to numbers
-            titleY = scaleRatio * (numbersbBox.top) + translateY - titlePadding;
-
-            return strTranslate(numbersX, translateY) + ' scale(' + scaleRatio + ')';
-        });
+        drawNumbers(gd, plotGroup, cd, numbersOpts);
 
         // Draw circular gauge
-        data = cd.filter(function() {return isAngular;});
+        var data = cd.filter(function() {return isAngular;});
         var angularGauge = plotGroup.selectAll('g.angular').data(data);
         angularGauge.exit().remove();
 
@@ -601,12 +458,174 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     titleY = numbersY - (titlebBox.top + titlebBox.bottom) / 2;
                     titleX = size.l - cn.bulletPadding * size.w; // Outside domain, on the left
                 }
+            } else {
+                titleY = trace._numbersTop - titlePadding;
             }
             return strTranslate(titleX, titleY);
         });
     });
 };
 
+function drawNumbers(gd, plotGroup, cd, opts) {
+    var trace = cd[0].trace;
+    var bignumberFontSize = trace.number.font.size;
+    var deltaFontSize = trace.delta.font.size;
+    var numbersX = opts.numbersX;
+    var numbersY = opts.numbersY;
+    var numbersAnchor = opts.numbersAnchor;
+
+    var hasTransition = opts.hasTransition;
+    var transitionOpts = opts.transitionOpts;
+    var onComplete = opts.onComplete;
+
+    // Position delta relative to bignumber
+    var deltaDy = 0;
+    var deltaX = 0;
+    var bignumberY = 0;
+
+    if(trace._hasDelta && trace._hasBigNumber) {
+        if(trace.delta.position === 'bottom') {
+            deltaDy = deltaFontSize * 1.5;
+        }
+        if(trace.delta.position === 'top') {
+            deltaDy = -bignumberFontSize + MID_SHIFT * deltaFontSize;
+        }
+        if(trace.delta.position === 'right') {
+            deltaX = undefined;
+        }
+        if(trace.delta.position === 'left') {
+            deltaX = undefined;
+            bignumberY = MID_SHIFT * bignumberFontSize / 2;
+        }
+    }
+    deltaDy -= MID_SHIFT * deltaFontSize;
+
+    var numbers = plotGroup.selectAll('text.numbers').data(cd);
+    numbers.enter().append('text').classed('numbers', true);
+
+    var data = [];
+    var numberSpec = {
+        class: 'number'
+    };
+    var deltaSpec = {
+        class: 'delta'
+    };
+    if(trace._hasBigNumber) data.push(numberSpec);
+    if(trace._hasDelta) data.push(deltaSpec);
+    if(trace.delta.position === 'left') data.reverse();
+    var sel = numbers.selectAll('tspan').data(data);
+    sel.enter().append('tspan');
+    sel
+        .attr('text-anchor', function() {return numbersAnchor;})
+        .attr('class', function(d) { return d.class;})
+        .attr('dx', function(d, i) {
+            var pos = trace.delta.position;
+            // Add padding to the second tspan when it's a one-liner
+            if(i === 1 && (pos === 'left' || pos === 'right')) return 10;
+            return null;
+        });
+    sel.exit().remove();
+
+    // bignumber
+    var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
+    var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
+    var bignumberSuffix = trace.number.suffix;
+    if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;
+
+    var number = numbers.select('tspan.number');
+    number
+        .call(Drawing.font, trace.number.font)
+        .attr('x', null)
+        .attr('dy', bignumberY);
+
+    // delta
+    var deltaAx = mockAxis(gd, {tickformat: trace.delta.valueformat});
+    var deltaFmt = function(v) { return Axes.tickText(deltaAx, v).text;};
+    if(!trace._deltaLastValue) trace._deltaLastValue = 0;
+    var deltaValue = function(d) {
+        var value = trace.delta.showpercentage ? d.relativeDelta : d.delta;
+        return value;
+    };
+    var deltaFormatText = function(value) {
+        if(value === 0) return '-';
+        return (value > 0 ? trace.delta.increasing.symbol : trace.delta.decreasing.symbol) + deltaFmt(value);
+    };
+    var deltaFill = function(d) {
+        return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
+    };
+    var delta = numbers.select('tspan.delta');
+    delta
+        .call(Drawing.font, trace.delta.font)
+        .style('fill', deltaFill)
+        .attr('x', deltaX)
+        .attr('dy', deltaDy);
+
+    if(hasTransition) {
+        number
+            .transition()
+            .duration(transitionOpts.duration)
+            .ease(transitionOpts.easing)
+            .each('end', function() { onComplete && onComplete(); })
+            .each('interrupt', function() { onComplete && onComplete(); })
+            .attrTween('text', function() {
+                var that = d3.select(this);
+                var interpolator = d3.interpolateNumber(cd[0].lastY, cd[0].y);
+                return function(t) {
+                    that.text(fmt(interpolator(t)) + bignumberSuffix);
+                };
+            });
+
+        delta
+            .transition()
+            .duration(transitionOpts.duration)
+            .ease(transitionOpts.easing)
+            .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
+            .each('interrupt', function() { onComplete && onComplete(); })
+            .attrTween('text', function(d) {
+                var that = d3.select(this);
+                var to = deltaValue(d);
+                var from = trace._deltaLastValue;
+                var interpolator = d3.interpolateNumber(from, to);
+                return function(t) {
+                    that.text(deltaFormatText(interpolator(t)));
+                };
+            });
+    } else {
+        number.text(fmt(cd[0].y) + bignumberSuffix);
+
+        delta.text(function(d) {
+            return deltaFormatText(deltaValue(d));
+        });
+    }
+
+    // Resize numbers to fit within space and position
+    var numbersbBox;
+    numbers.attr('transform', function() {
+        var m = opts.numbersScaler(numbers);
+        var key = m[2];
+        if(!(trace._numbersScale && trace._numbersScale.key === key)) {
+            trace._numbersScale = {key: key, value: 1};
+        }
+        var scaleRatio = trace._numbersScale.value = Math.min(trace._numbersScale.value, m[0]);
+        numbersbBox = m[1];
+        var translateY;
+        if(trace._isAngular) {
+            // bottom-align
+            translateY = numbersY - scaleRatio * numbersbBox.bottom;
+        } else {
+            // center-align
+            translateY = numbersY - scaleRatio * (numbersbBox.top + numbersbBox.bottom) / 2;
+        }
+
+        // If no gauge, compute title position relative to numbers
+        trace._numbersTop = scaleRatio * (numbersbBox.top) + translateY;
+        // titleY = scaleRatio * (numbersbBox.top) + translateY - opts.titlePadding;
+
+        return strTranslate(numbersX, translateY) + ' scale(' + scaleRatio + ')';
+    });
+}
+
+// Apply fill, stroke, stroke-width to SVG shape
 function styleShape(p) {
     p
         .style('fill', function(d) { return d.color;})

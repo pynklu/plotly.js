@@ -65,11 +65,11 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         gaugeIn = traceIn.gauge;
         gaugeOut = Template.newContainer(traceOut, 'gauge');
         coerceGauge('shape');
-        var isBullet = traceOut.mode.indexOf('gauge') !== -1 && traceOut.gauge.shape === 'bullet';
+        var isBullet = traceOut._isBullet = traceOut.gauge.shape === 'bullet';
         if(!isBullet) {
             coerce('title.align', 'center');
         }
-        var isAngular = traceOut.mode.indexOf('gauge') !== -1 && traceOut.gauge.shape === 'angular';
+        var isAngular = traceOut._isAngular = traceOut.gauge.shape === 'angular';
         if(!isAngular) {
             coerce('align', 'center');
         }
