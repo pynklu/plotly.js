@@ -29,20 +29,20 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
 
     // Mode
     coerce('mode');
-    traceOut._hasBigNumber = traceOut.mode.indexOf('bignumber') !== -1;
+    traceOut._hasNumber = traceOut.mode.indexOf('number') !== -1;
     traceOut._hasDelta = traceOut.mode.indexOf('delta') !== -1;
     traceOut._hasGauge = traceOut.mode.indexOf('gauge') !== -1;
 
     // Number attributes
     var bignumberFontSize;
-    // if(traceOut._hasBigNumber) {
+    if(traceOut._hasNumber) {
         coerce('valueformat');
         coerce('number.font.color', layout.font.color);
         coerce('number.font.family', layout.font.family);
         coerce('number.font.size', cn.defaultNumberFontSize);
-        bignumberFontSize = traceOut.number.font.size;
         coerce('number.suffix');
-    // }
+        bignumberFontSize = traceOut.number.font.size;
+    }
 
     coerce('vmin');
     coerce('vmax', 1.5 * traceOut.value);
@@ -109,7 +109,6 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         handleTickValueDefaults(axisIn, axisOut, coerceGaugeAxis, 'linear');
 
         var opts = {outerTicks: false, font: layout.font};
-        // opts.tickSuffixDflt = traceOut.number.suffix;
         handleTickLabelDefaults(axisIn, axisOut, coerceGaugeAxis, 'linear', opts);
         handleTickMarkDefaults(axisIn, axisOut, coerceGaugeAxis, 'linear', opts);
     } else {
@@ -122,10 +121,10 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     if(traceOut._hasDelta) {
         coerce('delta.font.color', layout.font.color);
         coerce('delta.font.family', layout.font.family);
-        coerce('delta.font.size', (traceOut._hasBigNumber ? 0.5 : 1) * (bignumberFontSize || cn.defaultNumberFontSize));
+        coerce('delta.font.size', (traceOut._hasNumber ? 0.5 : 1) * (bignumberFontSize || cn.defaultNumberFontSize));
         coerce('delta.reference', traceOut.value);
         coerce('delta.showpercentage');
-        coerce('delta.valueformat', traceOut.delta.showpercentage ? '2%' : traceOut.valueformat);
+        coerce('delta.valueformat', traceOut.delta.showpercentage ? '2%' : '.3s');
         coerce('delta.increasing.symbol');
         coerce('delta.increasing.color');
         coerce('delta.decreasing.symbol');

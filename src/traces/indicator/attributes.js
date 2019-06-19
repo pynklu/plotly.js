@@ -100,8 +100,8 @@ module.exports = {
         valType: 'flaglist',
         editType: 'calc',
         role: 'info',
-        flags: ['bignumber', 'delta', 'gauge'],
-        dflt: 'bignumber'
+        flags: ['number', 'delta', 'gauge'],
+        dflt: 'number'
     },
     value: {
         valType: 'number',

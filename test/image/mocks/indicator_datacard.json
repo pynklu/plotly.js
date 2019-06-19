@@ -2,7 +2,7 @@
   "data": [{
     "domain": {"x": [0, 0.5], "y": [0, 0.5]},
     "type": "indicator",
-    "mode": "bignumber+delta",
+    "mode": "number+delta",
     "valueformat": "asdf",
     "number": {
       "align": "middle",
@@ -16,7 +16,7 @@
   }, {
     "domain": {"x": [0, 0.5], "y": [0.5, 1.0]},
     "type": "indicator",
-    "mode": "bignumber+delta",
+    "mode": "number+delta",
     "valueformat": "asdf",
     "number": {
       "align": "middle",
@@ -30,7 +30,7 @@
   }, {
     "domain": {"x": [0.5, 1.0], "y": [0, 0.5]},
     "type": "indicator",
-    "mode": "bignumber+delta",
+    "mode": "number+delta",
     "valueformat": "asdf",
     "number": {
       "align": "middle",
@@ -44,7 +44,7 @@
   }, {
     "domain": {"x": [0.5, 1.0], "y": [0.5, 1.0]},
     "type": "indicator",
-    "mode": "bignumber+delta",
+    "mode": "number+delta",
     "valueformat": "asdf",
     "number": {
       "align": "middle",

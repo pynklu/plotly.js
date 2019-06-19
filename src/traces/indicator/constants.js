@@ -21,5 +21,5 @@ module.exports = {
     bulletPadding: 0.025,
     innerRadius: 0.75,
     valueHeight: 0.5, // thickness of value bars relative to full thickness,
-    titlePadding: 10
+    titlePadding: 5
 };

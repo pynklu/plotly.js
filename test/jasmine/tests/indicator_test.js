@@ -9,6 +9,7 @@ var failTest = require('../assets/fail_test');
 // var getClientPosition = require('../assets/get_client_position');
 // var mouseEvent = require('../assets/mouse_event');
 var supplyAllDefaults = require('../assets/supply_defaults');
+var indicatorAttrs = require('@src/traces/indicator/attributes.js');
 // var rgb = require('../../../src/components/color').rgb;
 
 // var customAssertions = require('../assets/custom_assertions');
@@ -27,20 +28,28 @@ describe('Indicator defaults', function() {
         return gd._fullData[0];
     }
 
-    it('to bignumber mode', function() {
+    it('to number mode', function() {
         var out = _supply({type: 'indicator', value: 1});
-        expect(out.mode).toBe('bignumber');
+        expect(out.mode).toBe('number');
+    });
+
+    indicatorAttrs.mode.flags.forEach(function(mode) {
+        it('should not coerce container ' + mode + ' if not used', function() {
+            var allModes = indicatorAttrs.mode.flags.slice();
+            allModes.splice(allModes.indexOf(mode), 1);
+            var out = _supply({type: 'indicator', mode: allModes.join('+'), value: 1});
+            expect(out[mode]).toBe(undefined);
+        });
     });
 
     it('defaults to formatting numbers using SI prefix', function() {
-        var out = _supply({type: 'indicator', value: 1});
+        var out = _supply({type: 'indicator', mode: 'number+delta', value: 1});
         expect(out.valueformat).toBe('.3s');
         expect(out.delta.valueformat).toBe('.3s');
     });
 
     it('defaults to displaying relative changes in percentage', function() {
-        var out = _supply({type: 'indicator', delta: {showpercentage: true}, value: 1});
-        expect(out.valueformat).toBe('.3s');
+        var out = _supply({type: 'indicator', mode: 'delta', delta: {showpercentage: true}, value: 1});
         expect(out.delta.valueformat).toBe('2%');
     });
 
@@ -59,13 +68,13 @@ describe('Indicator defaults', function() {
     });
 
     it('should NOT set number alignment when angular', function() {
-        var out = _supply({type: 'indicator', mode: 'gauge', gauge: {shape: 'angular'}, value: 1});
+        var out = _supply({type: 'indicator', mode: 'number+gauge', gauge: {shape: 'angular'}, value: 1});
         expect(out.align).toBe(undefined);
         expect(out.title.align).toBe('center');
     });
 
     it('should NOT set title alignment when bullet', function() {
-        var out = _supply({type: 'indicator', mode: 'gauge', gauge: {shape: 'bullet'}, value: 1});
+        var out = _supply({type: 'indicator', mode: 'number+gauge', gauge: {shape: 'bullet'}, value: 1});
         expect(out.align).toBe('center');
         expect(out.title.align).toBe(undefined);
     });
@@ -76,13 +85,13 @@ describe('Indicator defaults', function() {
         expect(out.number.font.size).toBe(80);
     });
 
-    it('delta font size to a fraction of bignumber', function() {
-        var out = _supply({type: 'indicator', value: 1, number: {font: {size: 50}}});
+    it('delta font size to a fraction of number', function() {
+        var out = _supply({type: 'indicator', mode: 'delta+number', value: 1, number: {font: {size: 50}}});
         expect(out.number.font.size).toBe(50);
         expect(out.delta.font.size).toBe(25);
     });
 
-    it('title font size to a fraction of bignumber', function() {
+    it('title font size to a fraction of number', function() {
         var out = _supply({type: 'indicator', value: 1, number: {font: {size: 50}}});
         expect(out.number.font.size).toBe(50);
         expect(out.title.font.size).toBe(12.5);
@@ -182,7 +191,7 @@ describe('Indicator plot', function() {
         it('displays relative changes', function(done) {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
-                mode: 'bignumber+delta',
+                mode: 'number+delta',
                 value: 110,
                 delta: {reference: 100}
             }], {width: 400, height: 400})

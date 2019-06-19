@@ -59,7 +59,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var plotGroup = d3.select(this);
 
         // Elements in trace
-        var hasBigNumber = trace._hasBigNumber;
+        var hasNumber = trace._hasNumber;
         var hasDelta = trace._hasDelta;
         var hasGauge = trace._hasGauge;
         var isAngular = hasGauge && trace.gauge.shape === 'angular';
@@ -311,7 +311,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 targetArc.select('path').call(drawArc).call(styleShape);
                 targetArc.exit().remove();
 
-                    // Draw foreground with transition
+                // Draw foreground with transition
                 var valueArcPath = arcPathGenerator(trace.gauge.value.height);
                 var fgArc = angularGauge.selectAll('g.fgArc').data([trace.gauge.value]);
                 fgArc.enter().append('g').classed('fgArc', true).append('path');
@@ -322,7 +322,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                         .transition()
                         .duration(transitionOpts.duration)
                         .ease(transitionOpts.easing)
-                        .each('end', function() { onComplete && onComplete(); })
+                        .each('end', function() { trace._lastValue = cd[0].y; onComplete && onComplete(); })
                         .each('interrupt', function() { onComplete && onComplete(); })
                         .attrTween('d', arcTween(valueArcPath, valueToAngle(cd[0].lastY), valueToAngle(cd[0].y)));
                 } else {
@@ -352,7 +352,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 var bulletHeight = size.h; // use all vertical domain
                 var innerBulletHeight = trace.gauge.value.height * bulletHeight;
                 var bulletLeft = domain.x[0];
-                var bulletRight = domain.x[0] + (domain.x[1] - domain.x[0]) * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
+                var bulletRight = domain.x[0] + (domain.x[1] - domain.x[0]) * ((hasNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
 
                 ax = mockAxis(gd, opts, range);
                 ax._id = 'xbulletaxis';
@@ -448,20 +448,20 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             .call(svgTextUtils.convertToTspans, gd);
         title.attr('transform', function() {
             var titleX = size.l + size.w * position[trace.title.align];
+            var titlebBox = Drawing.bBox(title.node());
             if(hasGauge) {
                 if(isAngular) {
                     // position above axis ticks/labels
                     var bBox = angularaxisLayer.node().getBoundingClientRect();
-                    titleY = bBox.top - bBoxRef.top - titlePadding;
+                    titleY = (bBox.top - bBoxRef.top - titlePadding) - titlebBox.bottom;
                 }
                 if(isBullet) {
                     // position outside domain
-                    var titlebBox = Drawing.bBox(title.node());
                     titleY = numbersY - (titlebBox.top + titlebBox.bottom) / 2;
                     titleX = size.l - cn.bulletPadding * size.w; // Outside domain, on the left
                 }
             } else {
-                titleY = trace._numbersTop - titlePadding;
+                titleY = (trace._numbersTop - titlePadding) - titlebBox.bottom;
             }
             return strTranslate(titleX, titleY);
         });
@@ -479,7 +479,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
     var onComplete = opts.onComplete;
 
     var bignumberFontSize, deltaFontSize;
-    if(trace._hasBigNumber) bignumberFontSize = trace.number.font.size;
+    if(trace._hasNumber) bignumberFontSize = trace.number.font.size;
     if(trace._hasDelta) deltaFontSize = trace.delta.font.size;
 
     // Position delta relative to bignumber
@@ -487,7 +487,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
     var deltaX = 0;
     var bignumberY = 0;
 
-    if(trace._hasDelta && trace._hasBigNumber) {
+    if(trace._hasDelta && trace._hasNumber) {
         if(trace.delta.position === 'bottom') {
             deltaDy = deltaFontSize * 1.5;
         }
@@ -508,7 +508,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
     numbers.enter().append('text').classed('numbers', true);
 
     var data = [];
-    if(trace._hasBigNumber) data.push('number');
+    if(trace._hasNumber) data.push('number');
     if(trace._hasDelta) {
         data.push('delta');
         if(trace.delta.position === 'left') data.reverse();
@@ -590,9 +590,9 @@ function drawNumbers(gd, plotGroup, cd, opts) {
                 .ease(transitionOpts.easing)
                 .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
                 .each('interrupt', function() { onComplete && onComplete(); })
-                .attrTween('text', function(d) {
+                .attrTween('text', function() {
                     var that = d3.select(this);
-                    var to = deltaValue(d);
+                    var to = deltaValue(cd[0]);
                     var from = trace._deltaLastValue;
                     var interpolator = d3.interpolateNumber(from, to);
                     return function(t) {
@@ -600,14 +600,14 @@ function drawNumbers(gd, plotGroup, cd, opts) {
                     };
                 });
         } else {
-            delta.text(function(d) {
-                return deltaFormatText(deltaValue(d));
+            delta.text(function() {
+                return deltaFormatText(deltaValue(cd[0]));
             });
         }
     }
 
-    if(trace._hasBigNumber) drawBignumber();
     if(trace._hasDelta) drawDelta();
+    if(trace._hasNumber) drawBignumber();
 
     // Resize numbers to fit within space and position
     numbers.attr('transform', function() {

@@ -9,7 +9,7 @@
       "font": {"size": 14}
     },
     "type": "indicator",
-    "mode": "bignumber+gauge+delta",
+    "mode": "number+gauge+delta",
     "vmax": 300,
     "delta": {"reference": 200, "position": "right"},
     "gauge": {
@@ -42,7 +42,7 @@
     },
     "title": {"text": "<b>Profit</b>", "font": {"size": 14}},
     "type": "indicator",
-    "mode": "bignumber+gauge+delta",
+    "mode": "number+gauge+delta",
     "vmax": 100,
     "delta": {"reference": 200, "position": "bottom"},
     "target": 75,
@@ -80,7 +80,7 @@
       "font": {"size": 14}
     },
     "type": "indicator",
-    "mode": "bignumber+gauge+delta",
+    "mode": "number+gauge+delta",
     "vmax": 300,
     "delta": {"reference": 200, "position": "top"},
     "gauge": {

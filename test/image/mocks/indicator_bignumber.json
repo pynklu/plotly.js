@@ -6,7 +6,7 @@
       },
       "title": {"text": "Accounts"},
       "type": "indicator",
-      "mode": "bignumber+delta",
+      "mode": "number+delta",
       "delta": {
         "increasing": {
           "color": "green",
@@ -45,7 +45,7 @@
         },
         "title": {"text": "Accounts"},
         "type": "indicator",
-        "mode": "bignumber",
+        "mode": "number",
         "delta": {
           "reference": 400,
           "showpercentage": true
@@ -62,7 +62,7 @@
       },
       "title": {"text": "Accounts"},
       "type": "indicator",
-      "mode": "bignumber+delta",
+      "mode": "number+delta",
       "delta": {
         "reference": 400,
         "showpercentage": true
@@ -79,7 +79,7 @@
       },
       "title": {"text": "Accounts"},
       "type": "indicator",
-      "mode": "bignumber+delta",
+      "mode": "number+delta",
       "delta": {
         "reference": 400,
         "showpercentage": true
@@ -94,9 +94,9 @@
         "x": [0.66, 1],
         "y": [0, 1]
       },
-      "title": {"text": "Accounts"},
+      "title": {"text": "Accounts<br><span style='font-size:0.8em;color:gray'>Subtitle</span><br><span style='font-size:0.8em;color:gray'>Subsubtitle</span>"},
       "type": "indicator",
-      "mode": "bignumber+delta",
+      "mode": "number+delta",
       "delta": {
         "reference": 400,
         "showpercentage": true

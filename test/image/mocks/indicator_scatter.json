@@ -6,7 +6,7 @@
     },
     "title": {"text": "Users online"},
     "type": "indicator",
-    "mode": "bignumber+delta",
+    "mode": "number+delta",
     "delta": {"reference": 512},
     "ticker": {
       "showticker": true,

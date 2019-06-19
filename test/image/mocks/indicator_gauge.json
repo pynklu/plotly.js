@@ -7,10 +7,7 @@
     "value": 450,
     "title": {"text": "Speed"},
     "type": "indicator",
-    "mode": "gauge+bignumber",
-    "ticker": {
-      "showticker": true
-    },
+    "mode": "gauge+number",
     "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
@@ -41,12 +38,9 @@
       "y": [0.5, 0.83333]
     },
     "value": 450,
-    "title": {"text": "Speed"},
+    "title": {"text": "Speed<br><span style='font-size:0.8em;color:gray'>Subtitle</span>"},
     "type": "indicator",
     "mode": "gauge+delta",
-    "ticker": {
-      "showticker": true
-    },
     "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
@@ -79,10 +73,7 @@
     "value": 240,
     "title": {"text": "Speed"},
     "type": "indicator",
-    "mode": "gauge+bignumber+delta",
-    "ticker": {
-      "showticker": true
-    },
+    "mode": "gauge+number+delta",
     "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
@@ -115,10 +106,7 @@
     "value": 450,
     "title": {"text": "Speed"},
     "type": "indicator",
-    "mode": "gauge+bignumber+delta",
-    "ticker": {
-      "showticker": true
-    },
+    "mode": "gauge+number+delta",
     "vmax": 500,
     "delta": {"reference": 400},
     "gauge": {
@@ -151,10 +139,7 @@
     "value": 450,
     "title": {"text": "Speed"},
     "type": "indicator",
-    "mode": "gauge+bignumber+delta",
-    "ticker": {
-      "showticker": true
-    },
+    "mode": "gauge+number+delta",
     "vmax": 500,
     "delta": {"reference": 400, "position": "top"},
     "gauge": {
