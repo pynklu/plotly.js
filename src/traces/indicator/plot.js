@@ -79,7 +79,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var range = [trace.vmin, trace.vmax];
 
         // title
-        var titleAnchor = isBullet ? anchor.right : anchor[trace.title.align];
         var titlePadding = cn.titlePadding;
 
         // circular gauge
@@ -94,15 +93,16 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
 
         // Position elements
-        var titleX, titleY;
+        var titleY;
         var numbersX, numbersY, numbersScaler;
         var numbersAlign = trace.align || 'center';
         var numbersAnchor = anchor[numbersAlign];
         var gaugePosition = [];
 
         var centerX = size.l + size.w / 2;
-        titleX = size.l + size.w * position[trace.title.align];
-        numbersY = size.t + size.h / 2;
+        var centerY = size.t + size.h / 2;
+
+        numbersY = centerY;
 
         if(!hasGauge) {
             numbersX = size.l + position[numbersAlign] * size.w;
@@ -123,8 +123,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 var padding = cn.bulletPadding;
                 var p = (1 - cn.bulletNumberDomainSize) + padding;
                 numbersX = size.l + (p + (1 - p) * position[numbersAlign]) * size.w;
-                titleX = size.l - padding * size.w; // Outside domain, on the left
-                titleY = numbersY;
+                titleY = centerY;
 
                 numbersScaler = function(el) {
                     return fitTextInsideBox(el, (cn.bulletNumberDomainSize - padding) * size.w, size.h);
@@ -581,24 +580,26 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var title = plotGroup.selectAll('text.title').data(cd);
         title.enter().append('text').classed('title', true);
         title
-            .attr({
-                'text-anchor': titleAnchor,
+            .attr('text-anchor', function() {
+                return isBullet ? anchor.right : anchor[trace.title.align];
             })
             .text(trace.title.text)
             .call(Drawing.font, trace.title.font)
             .call(svgTextUtils.convertToTspans, gd);
         title.exit().remove();
         title.attr('transform', function() {
+            var titleX = size.l + size.w * position[trace.title.align];
             if(hasGauge) {
                 if(isAngular) {
-                        // position above axis ticks/labels
+                    // position above axis ticks/labels
                     var bBox = angularaxisLayer.node().getBoundingClientRect();
                     titleY = bBox.top - bBoxRef.top - titlePadding;
                 }
                 if(isBullet) {
-                        // position outside domain
+                    // position outside domain
                     var titlebBox = Drawing.bBox(title.node());
                     titleY = numbersY - (titlebBox.top + titlebBox.bottom) / 2;
+                    titleX = size.l - cn.bulletPadding * size.w; // Outside domain, on the left
                 }
             }
             return strTranslate(titleX, titleY);
