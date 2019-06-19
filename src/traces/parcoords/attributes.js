@@ -59,7 +59,7 @@ module.exports = {
             ].join(' ')
         }),
         ticktext: extendFlat({}, axesAttrs.ticktext, {
-            editType: 'calc', // TODO: test
+            editType: 'plot', // TODO: test
             description: [
                 'Sets the text displayed at the ticks position via `tickvals`.'
             ].join(' ')
@@ -68,7 +68,7 @@ module.exports = {
             valType: 'string',
             dflt: '3s',
             role: 'style',
-            editType: 'calc', // TODO: test
+            editType: 'plot', // TODO: test
             description: [ // TODO: should update this description?
                 'Sets the tick label formatting rule using d3 formatting mini-language',
                 'which is similar to those of Python. See',
