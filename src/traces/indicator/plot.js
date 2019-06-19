@@ -123,8 +123,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 var padding = cn.bulletPadding;
                 var p = (1 - cn.bulletNumberDomainSize) + padding;
                 numbersX = size.l + (p + (1 - p) * position[numbersAlign]) * size.w;
-                titleY = centerY;
-
                 numbersScaler = function(el) {
                     return fitTextInsideBox(el, (cn.bulletNumberDomainSize - padding) * size.w, size.h);
                 };
