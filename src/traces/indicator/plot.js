@@ -286,7 +286,7 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
         });
     }
 
-    // Draw bullet background and steps
+    // Draw bullet background, steps
     var boxes = [gaugeBg].concat(trace.gauge.steps);
     var targetBullet = bullet.selectAll('g.targetBullet').data(boxes);
     targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
