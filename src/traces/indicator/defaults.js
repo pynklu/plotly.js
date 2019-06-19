@@ -114,6 +114,8 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         handleTickMarkDefaults(axisIn, axisOut, coerceGaugeAxis, 'linear', opts);
     }
 
+    if(!traceOut._hasGauge) coerce('title.align', 'center');
+
     // delta attributes
     // if(traceOut._hasDelta) {
         coerce('delta.font.color', layout.font.color);
