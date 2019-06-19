@@ -81,28 +81,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var titleAnchor = isBullet ? anchor.right : anchor[trace.title.align];
         var titlePadding = cn.titlePadding;
 
-        // bignumber
-        var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
-        var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
-        var bignumberSuffix = trace.number.suffix;
-        if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;
-
-        // delta
-        var deltaAx = mockAxis(gd, {tickformat: trace.delta.valueformat});
-        var deltaFmt = function(v) { return Axes.tickText(deltaAx, v).text;};
-        if(!trace._deltaLastValue) trace._deltaLastValue = 0;
-        var deltaValue = function(d) {
-            var value = trace.delta.showpercentage ? d.relativeDelta : d.delta;
-            return value;
-        };
-        var deltaFormatText = function(value) {
-            if(value === 0) return '-';
-            return (value > 0 ? trace.delta.increasing.symbol : trace.delta.decreasing.symbol) + deltaFmt(value);
-        };
-        var deltaFill = function(d) {
-            return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
-        };
-
         // circular gauge
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h); // fill domain
@@ -150,7 +128,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 var padding = cn.bulletPadding;
                 var p = (1 - cn.bulletNumberDomainSize) + padding;
                 numbersX = size.l + (p + (1 - p) * position[bignumberAlign]) * size.w;
-                bignumberFontSize = Math.min(0.2 * size.w / (fmt(trace.vmax).length), bulletHeight);
                 titleX = size.l - padding * size.w; // Outside domain, on the left
                 titleY = numbersY;
 
@@ -161,7 +138,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
         bignumberFontSize = trace.number.font.size;
         deltaFontSize = trace.delta.font.size;
-        // titleFontSize = trace.title.font.size;
 
         // Position delta relative to bignumber
         var deltaDy = 0;
@@ -184,19 +160,41 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
         deltaDy -= MID_SHIFT * deltaFontSize;
 
-            // title
+        // title
         var title = d3.select(this).selectAll('text.title').data(cd);
         title.enter().append('text').classed('title', true);
         title
-                .attr({
-                    'text-anchor': titleAnchor,
-                })
-                .text(trace.title.text)
-                .call(Drawing.font, trace.title.font)
-                .call(svgTextUtils.convertToTspans, gd);
+            .attr({
+                'text-anchor': titleAnchor,
+            })
+            .text(trace.title.text)
+            .call(Drawing.font, trace.title.font)
+            .call(svgTextUtils.convertToTspans, gd);
         title.exit().remove();
 
         // number indicators
+
+        // bignumber
+        var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
+        var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
+        var bignumberSuffix = trace.number.suffix;
+        if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;
+
+        // delta
+        var deltaAx = mockAxis(gd, {tickformat: trace.delta.valueformat});
+        var deltaFmt = function(v) { return Axes.tickText(deltaAx, v).text;};
+        if(!trace._deltaLastValue) trace._deltaLastValue = 0;
+        var deltaValue = function(d) {
+            var value = trace.delta.showpercentage ? d.relativeDelta : d.delta;
+            return value;
+        };
+        var deltaFormatText = function(value) {
+            if(value === 0) return '-';
+            return (value > 0 ? trace.delta.increasing.symbol : trace.delta.decreasing.symbol) + deltaFmt(value);
+        };
+        var deltaFill = function(d) {
+            return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
+        };
         var numbers = d3.select(this).selectAll('text.numbers').data(cd);
         numbers.enter().append('text').classed('numbers', true);
 
