@@ -130,6 +130,30 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         };
         drawNumbers(gd, plotGroup, cd, numbersOpts);
 
+        // Reexpress our background attributes for drawing
+        var gaugeBg, gaugeOutline;
+        if(hasGauge) {
+            gaugeBg = {
+                range: [trace.vmin, trace.vmax],
+                color: trace.gauge.bgcolor,
+                line: {
+                    color: trace.gauge.bordercolor,
+                    width: 0
+                },
+                height: 1
+            };
+
+            gaugeOutline = {
+                range: [trace.vmin, trace.vmax],
+                color: 'rgba(0, 0, 0, 0)',
+                line: {
+                    color: trace.gauge.bordercolor,
+                    width: trace.gauge.borderwidth
+                },
+                height: 1
+            };
+        }
+
         // Prepare angular gauge layers
         var data = cd.filter(function() {return isAngular;});
         var angularGauge = plotGroup.selectAll('g.angular').data(data);
@@ -140,6 +164,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var gaugeOpts = {
             radius: radius,
             innerRadius: innerRadius,
+            gaugeBg: gaugeBg,
+            gaugeOutline: gaugeOutline,
             gaugePosition: gaugePosition,
             angularaxisLayer: angularaxisLayer,
             angularGauge: angularGauge,
@@ -158,6 +184,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         gaugeOpts = {
             size: size,
+            gaugeBg: gaugeBg,
+            gaugeOutline: gaugeOutline,
             bulletGauge: bulletGauge,
             bulletaxisLayer: bulletaxisLayer,
             hasTransition: hasTransition,
@@ -204,6 +232,8 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
 
     var bullet = gaugeOpts.bulletGauge;
     var bulletaxis = gaugeOpts.bulletaxisLayer;
+    var gaugeBg = gaugeOpts.gaugeBg;
+    var gaugeOutline = gaugeOpts.gaugeOutline;
     var size = gaugeOpts.size;
     var domain = trace.domain;
 
@@ -214,27 +244,6 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
     // preparing axis
     var ax, vals, transFn, tickSign, shift;
     var opts = trace.gauge.axis;
-
-    // Reexpress our background attributes for drawing
-    var gaugeBg = {
-        range: [trace.vmin, trace.vmax],
-        color: trace.gauge.bgcolor,
-        line: {
-            color: trace.gauge.bordercolor,
-            width: 0
-        },
-        height: 1
-    };
-
-    var gaugeOutline = {
-        range: [trace.vmin, trace.vmax],
-        color: 'rgba(0, 0, 0, 0)',
-        line: {
-            color: trace.gauge.bordercolor,
-            width: trace.gauge.borderwidth
-        },
-        height: 1
-    };
 
     // Enter bullet, axis
     bullet.enter().append('g').classed('bullet', true);
@@ -277,7 +286,7 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
         });
     }
 
-    // Draw bullet background, steps and thresholds
+    // Draw bullet background and steps
     var boxes = [gaugeBg].concat(trace.gauge.steps);
     var targetBullet = bullet.selectAll('g.targetBullet').data(boxes);
     targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
@@ -337,6 +346,8 @@ function drawAngularGauge(gd, plotGroup, cd, gaugeOpts) {
 
     var radius = gaugeOpts.radius;
     var innerRadius = gaugeOpts.innerRadius;
+    var gaugeBg = gaugeOpts.gaugeBg;
+    var gaugeOutline = gaugeOpts.gaugeOutline;
     var gaugePosition = gaugeOpts.gaugePosition;
     var angularGauge = gaugeOpts.angularGauge;
     var angularaxisLayer = gaugeOpts.angularaxisLayer;
@@ -373,27 +384,6 @@ function drawAngularGauge(gd, plotGroup, cd, gaugeOpts) {
     // preparing axis
     var ax, vals, transFn, tickSign;
     var opts = trace.gauge.axis;
-
-    // Reexpress our background attributes for drawing
-    var gaugeBg = {
-        range: [trace.vmin, trace.vmax],
-        color: trace.gauge.bgcolor,
-        line: {
-            color: trace.gauge.bordercolor,
-            width: 0
-        },
-        height: 1
-    };
-
-    var gaugeOutline = {
-        range: [trace.vmin, trace.vmax],
-        color: 'rgba(0, 0, 0, 0)',
-        line: {
-            color: trace.gauge.bordercolor,
-            width: trace.gauge.borderwidth
-        },
-        height: 1
-    };
 
     // Enter gauge and axis
     angularGauge.enter().append('g').classed('angular', true);
