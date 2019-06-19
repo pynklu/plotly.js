@@ -112,9 +112,10 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         // opts.tickSuffixDflt = traceOut.number.suffix;
         handleTickLabelDefaults(axisIn, axisOut, coerceGaugeAxis, 'linear', opts);
         handleTickMarkDefaults(axisIn, axisOut, coerceGaugeAxis, 'linear', opts);
+    } else {
+        coerce('title.align', 'center');
+        coerce('align', 'center');
     }
-
-    if(!traceOut._hasGauge) coerce('title.align', 'center');
 
     // delta attributes
     // if(traceOut._hasDelta) {

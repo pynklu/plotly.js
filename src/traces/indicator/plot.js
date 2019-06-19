@@ -86,7 +86,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h); // fill domain
         var innerRadius = cn.innerRadius * radius;
-        var gaugePosition = [0, 0];
         function valueToAngle(v) {
             var angle = (v - trace.vmin) / (trace.vmax - trace.vmin) * Math.PI - theta;
             if(angle < -theta) return -theta;
@@ -94,30 +93,25 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             return angle;
         }
 
-        // bullet gauge
-        var bulletHeight = size.h; // use all vertical domain
-
         // Position elements
         var titleX, titleY;
         var numbersX, numbersY, numbersScaler;
-        var bignumberFontSize, bignumberY;
-        var bignumberAlign = trace.align || 'center';
-        var bignumberAnchor = anchor[bignumberAlign];
-        var deltaFontSize;
-        var deltaAnchor = bignumberAnchor;
+        var numbersAlign = trace.align || 'center';
+        var numbersAnchor = anchor[numbersAlign];
+        var gaugePosition = [];
 
         var centerX = size.l + size.w / 2;
         titleX = size.l + size.w * position[trace.title.align];
         numbersY = size.t + size.h / 2;
 
         if(!hasGauge) {
-            numbersX = size.l + position[bignumberAlign] * size.w;
+            numbersX = size.l + position[numbersAlign] * size.w;
             numbersScaler = function(el) {
                 return fitTextInsideBox(el, 0.9 * size.w, 0.9 * size.h);
             };
         } else {
             if(isAngular) {
-                numbersX = centerX - 0.85 * innerRadius + 2 * 0.85 * innerRadius * position[bignumberAlign];
+                numbersX = centerX - 0.85 * innerRadius + 2 * 0.85 * innerRadius * position[numbersAlign];
                 numbersY = size.t + size.h / 2 + radius / 2;
                 gaugePosition = [centerX, numbersY];
 
@@ -128,7 +122,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             if(isBullet) {
                 var padding = cn.bulletPadding;
                 var p = (1 - cn.bulletNumberDomainSize) + padding;
-                numbersX = size.l + (p + (1 - p) * position[bignumberAlign]) * size.w;
+                numbersX = size.l + (p + (1 - p) * position[numbersAlign]) * size.w;
                 titleX = size.l - padding * size.w; // Outside domain, on the left
                 titleY = numbersY;
 
@@ -137,12 +131,17 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 };
             }
         }
-        bignumberFontSize = trace.number.font.size;
-        deltaFontSize = trace.delta.font.size;
+        var bignumberFontSize = trace.number.font.size;
+        var deltaFontSize = trace.delta.font.size;
+
+        // number indicators
 
         // Position delta relative to bignumber
         var deltaDy = 0;
         var deltaX = 0;
+        var bignumberY;
+        var deltaAnchor = numbersAnchor;
+
         if(hasDelta && hasBigNumber) {
             if(trace.delta.position === 'bottom') {
                 // deltaDy = (bignumberFontSize / 2 + deltaFontSize / 2);
@@ -160,8 +159,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             }
         }
         deltaDy -= MID_SHIFT * deltaFontSize;
-
-        // number indicators
 
         // bignumber
         var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
@@ -189,7 +186,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         var data = [];
         var numberSpec = {
-            'text-anchor': bignumberAnchor,
+            'text-anchor': numbersAnchor,
             class: 'number'
         };
         var deltaSpec = {
@@ -494,6 +491,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 bulletaxis.selectAll('g.' + 'xbulletaxis' + 'tick,path').remove();
 
                 // Draw bullet
+                var bulletHeight = size.h; // use all vertical domain
                 var innerBulletHeight = trace.gauge.value.height * bulletHeight;
                 var bulletLeft = domain.x[0];
                 var bulletRight = domain.x[0] + (domain.x[1] - domain.x[0]) * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
