@@ -59,7 +59,7 @@ module.exports = {
             ].join(' ')
         }),
         ticktext: extendFlat({}, axesAttrs.ticktext, {
-            editType: 'plot', // TODO: test
+            editType: 'calc', // TODO: test
             description: [
                 'Sets the text displayed at the ticks position via `tickvals`.'
             ].join(' ')
