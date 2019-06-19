@@ -81,7 +81,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var radius = Math.min(size.w / 2, size.h); // fill domain
         var innerRadius = cn.innerRadius * radius;
 
-        // Position numbers based on mode
+        // Position numbers based on mode and set the scaling logic
         var numbersX, numbersY, numbersScaler;
         var numbersAlign = trace.align || 'center';
 
@@ -120,7 +120,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         };
         drawNumbers(gd, plotGroup, cd, numbersOpts);
 
-        // Reexpress our background attributes for drawing
+        // Reexpress our gauge background attributes for drawing
         var gaugeBg, gaugeOutline;
         if(hasGauge) {
             gaugeBg = {
@@ -195,6 +195,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             .text(trace.title.text)
             .call(Drawing.font, trace.title.font)
             .call(svgTextUtils.convertToTspans, gd);
+
+        // Position title
         title.attr('transform', function() {
             var titleX = size.l + size.w * position[trace.title.align];
             var titleY;
@@ -212,6 +214,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     titleX = size.l - cn.bulletPadding * size.w; // Outside domain, on the left
                 }
             } else {
+                // position above numbers
                 titleY = (trace._numbersTop - titlePadding) - titlebBox.bottom;
             }
             return strTranslate(titleX, titleY);
