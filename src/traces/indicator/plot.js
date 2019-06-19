@@ -60,8 +60,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         // Elements in trace
         var hasGauge = trace._hasGauge;
-        var isAngular = hasGauge && trace.gauge.shape === 'angular';
-        var isBullet = hasGauge && trace.gauge.shape === 'bullet';
+        var isAngular = trace._isAngular;
+        var isBullet = trace._isBullet;
 
         // Domain size
         var domain = trace.domain;
@@ -73,26 +73,19 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             t: fullLayout._size.t + fullLayout._size.h * (1 - domain.y[1]),
             b: fullLayout._size.b + fullLayout._size.h * (domain.y[0])
         };
-
-        // title
-        var titlePadding = cn.titlePadding;
-
-        // Angular gauge
-        var radius = Math.min(size.w / 2, size.h); // fill domain
-        var innerRadius = cn.innerRadius * radius;
-
-        // Position elements
-        var titleY;
-        var numbersX, numbersY, numbersScaler;
-        var numbersAlign = trace.align || 'center';
-        var numbersAnchor = anchor[numbersAlign];
-        var gaugePosition = [];
-
         var centerX = size.l + size.w / 2;
         var centerY = size.t + size.h / 2;
 
-        numbersY = centerY;
 
+        // Angular gauge size
+        var radius = Math.min(size.w / 2, size.h); // fill domain
+        var innerRadius = cn.innerRadius * radius;
+
+        // Position numbers based on mode
+        var numbersX, numbersY, numbersScaler;
+        var numbersAlign = trace.align || 'center';
+
+        numbersY = centerY;
         if(!hasGauge) {
             numbersX = size.l + position[numbersAlign] * size.w;
             numbersScaler = function(el) {
@@ -100,10 +93,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             };
         } else {
             if(isAngular) {
-                numbersX = centerX - 0.85 * innerRadius + 2 * 0.85 * innerRadius * position[numbersAlign];
-                numbersY = size.t + size.h / 2 + radius / 2;
-                gaugePosition = [centerX, numbersY];
-
+                numbersX = centerX;
+                numbersY = centerY + radius / 2;
                 numbersScaler = function(el) {
                     return fitTextInsideCircle(el, 0.9 * innerRadius);
                 };
@@ -122,7 +113,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var numbersOpts = {
             numbersX: numbersX,
             numbersY: numbersY,
-            numbersAnchor: numbersAnchor,
             numbersScaler: numbersScaler,
             hasTransition: hasTransition,
             transitionOpts: transitionOpts,
@@ -162,11 +152,11 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         angularaxisLayer.exit().remove();
 
         var gaugeOpts = {
+            size: size,
             radius: radius,
             innerRadius: innerRadius,
             gaugeBg: gaugeBg,
             gaugeOutline: gaugeOutline,
-            gaugePosition: gaugePosition,
             angularaxisLayer: angularaxisLayer,
             angularGauge: angularGauge,
             hasTransition: hasTransition,
@@ -207,6 +197,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             .call(svgTextUtils.convertToTspans, gd);
         title.attr('transform', function() {
             var titleX = size.l + size.w * position[trace.title.align];
+            var titleY;
+            var titlePadding = cn.titlePadding;
             var titlebBox = Drawing.bBox(title.node());
             if(hasGauge) {
                 if(isAngular) {
@@ -286,14 +278,20 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
         });
     }
 
+    function drawRect(s) {
+        s
+            .attr('width', function(d) { return Math.max(0, ax.c2p(d.range[1] - d.range[0]));})
+            .attr('x', function(d) { return ax.c2p(d.range[0]);})
+            .attr('y', function(d) { return 0.5 * (1 - d.height) * bulletHeight;})
+            .attr('height', function(d) { return d.height * bulletHeight; });
+    }
+
     // Draw bullet background, steps
     var boxes = [gaugeBg].concat(trace.gauge.steps);
     var targetBullet = bullet.selectAll('g.targetBullet').data(boxes);
     targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
     targetBullet.select('rect')
-        .attr('width', function(d) { return Math.max(0, ax.c2p(d.range[1] - d.range[0]));})
-        .attr('x', function(d) { return ax.c2p(d.range[0]);})
-        .attr('height', bulletHeight)
+        .call(drawRect)
         .call(styleShape);
     targetBullet.exit().remove();
 
@@ -333,9 +331,7 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
     var bulletOutline = bullet.selectAll('g.bulletOutline').data([gaugeOutline]);
     bulletOutline.enter().append('g').classed('bulletOutline', true).append('rect');
     bulletOutline.select('rect')
-        .attr('width', function(d) { return Math.max(0, ax.c2p(d.range[1] - d.range[0]));})
-        .attr('x', function(d) { return ax.c2p(d.range[0]);})
-        .attr('height', bulletHeight)
+        .call(drawRect)
         .call(styleShape);
     bulletOutline.exit().remove();
 }
@@ -344,11 +340,12 @@ function drawAngularGauge(gd, plotGroup, cd, gaugeOpts) {
     var trace = cd[0].trace;
     var fullLayout = gd._fullLayout;
 
+    var size = gaugeOpts.size;
     var radius = gaugeOpts.radius;
     var innerRadius = gaugeOpts.innerRadius;
     var gaugeBg = gaugeOpts.gaugeBg;
     var gaugeOutline = gaugeOpts.gaugeOutline;
-    var gaugePosition = gaugeOpts.gaugePosition;
+    var gaugePosition = [size.l + size.w / 2, size.t + size.h / 2 + radius / 2];
     var angularGauge = gaugeOpts.angularGauge;
     var angularaxisLayer = gaugeOpts.angularaxisLayer;
 
@@ -507,7 +504,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
     var trace = cd[0].trace;
     var numbersX = opts.numbersX;
     var numbersY = opts.numbersY;
-    var numbersAnchor = opts.numbersAnchor;
+    var numbersAnchor = anchor[trace.align || 'center'];
 
     var hasTransition = opts.hasTransition;
     var transitionOpts = opts.transitionOpts;
