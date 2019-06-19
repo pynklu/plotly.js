@@ -56,6 +56,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
     Lib.makeTraceGroups(fullLayout._indicatorlayer, cdModule, 'trace').each(function(cd) {
         var cd0 = cd[0];
         var trace = cd0.trace;
+        var plotGroup = d3.select(this);
 
         // Elements in trace
         var hasBigNumber = trace._hasBigNumber;
@@ -240,34 +241,34 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         if(hasTransition) {
             number
-                    .transition()
-                    .duration(transitionOpts.duration)
-                    .ease(transitionOpts.easing)
-                    .each('end', function() { onComplete && onComplete(); })
-                    .each('interrupt', function() { onComplete && onComplete(); })
-                    .attrTween('text', function() {
-                        var that = d3.select(this);
-                        var interpolator = d3.interpolateNumber(cd[0].lastY, cd[0].y);
-                        return function(t) {
-                            that.text(fmt(interpolator(t)) + bignumberSuffix);
-                        };
-                    });
+                .transition()
+                .duration(transitionOpts.duration)
+                .ease(transitionOpts.easing)
+                .each('end', function() { onComplete && onComplete(); })
+                .each('interrupt', function() { onComplete && onComplete(); })
+                .attrTween('text', function() {
+                    var that = d3.select(this);
+                    var interpolator = d3.interpolateNumber(cd[0].lastY, cd[0].y);
+                    return function(t) {
+                        that.text(fmt(interpolator(t)) + bignumberSuffix);
+                    };
+                });
 
             delta
-                    .transition()
-                    .duration(transitionOpts.duration)
-                    .ease(transitionOpts.easing)
-                    .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
-                    .each('interrupt', function() { onComplete && onComplete(); })
-                    .attrTween('text', function(d) {
-                        var that = d3.select(this);
-                        var to = deltaValue(d);
-                        var from = trace._deltaLastValue;
-                        var interpolator = d3.interpolateNumber(from, to);
-                        return function(t) {
-                            that.text(deltaFormatText(interpolator(t)));
-                        };
-                    });
+                .transition()
+                .duration(transitionOpts.duration)
+                .ease(transitionOpts.easing)
+                .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
+                .each('interrupt', function() { onComplete && onComplete(); })
+                .attrTween('text', function(d) {
+                    var that = d3.select(this);
+                    var to = deltaValue(d);
+                    var from = trace._deltaLastValue;
+                    var interpolator = d3.interpolateNumber(from, to);
+                    return function(t) {
+                        that.text(deltaFormatText(interpolator(t)));
+                    };
+                });
         } else {
             number.text(fmt(cd[0].y) + bignumberSuffix);
 
@@ -301,24 +302,78 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         });
 
         // Draw gauges
+        function arcPathGenerator(size) {
+            return d3.svg.arc()
+                      .innerRadius((innerRadius + radius) / 2 - size / 2 * (radius - innerRadius))
+                      .outerRadius((innerRadius + radius) / 2 + size / 2 * (radius - innerRadius))
+                      .startAngle(-theta);
+        }
+
+        function drawArc(p) {
+            p
+                .attr('d', function(d) {
+                    return arcPathGenerator(d.height)
+                      .startAngle(valueToAngle(d.range[0]))
+                      .endAngle(valueToAngle(d.range[1]))();
+                });
+        }
         if(hasGauge) {
+            // preparing axis
+            var ax, vals, transFn, tickSign, shift;
+            var opts = trace.gauge.axis;
+
+            // Reexpress our background attributes for drawing
+            var gaugeBg = {
+                range: [trace.vmin, trace.vmax],
+                color: trace.gauge.bgcolor,
+                line: {
+                    color: trace.gauge.bordercolor,
+                    width: 0
+                },
+                height: 1
+            };
+
+            var gaugeOutline = {
+                range: [trace.vmin, trace.vmax],
+                color: 'rgba(0, 0, 0, 0)',
+                line: {
+                    color: trace.gauge.bordercolor,
+                    width: trace.gauge.borderwidth
+                },
+                height: 1
+            };
+
             // Draw circular gauge
             data = cd.filter(function() {return isAngular;});
-            var gauge = d3.select(this).selectAll('g.gauge').data(data);
+            var gauge = plotGroup.selectAll('g.gauge').data(data);
             gauge.enter().append('g').classed('gauge', true);
             gauge.exit().remove();
             gauge.attr('transform', strTranslate(gaugePosition[0], gaugePosition[1]));
 
-            function arcPathGenerator(size) {
-                return d3.svg.arc()
-                          .innerRadius((innerRadius + radius) / 2 - size / 2 * (radius - innerRadius))
-                          .outerRadius((innerRadius + radius) / 2 + size / 2 * (radius - innerRadius))
-                          .startAngle(-theta);
-            }
+            var angularaxisLayer = plotGroup.selectAll('g.angularaxis').data(data);
+            angularaxisLayer.enter().append('g')
+                  .classed('angularaxis', true)
+                  .classed('crisp', true);
+            angularaxisLayer.exit().remove();
+            angularaxisLayer.selectAll('g.' + 'angularaxis' + 'tick,path').remove();
 
-            // Draw angular axis
-            var ax;
-            var opts = trace.gauge.axis;
+            // Draw bullet gauge
+            data = cd.filter(function() {return isBullet;});
+            var innerBulletHeight = trace.gauge.value.height * bulletHeight;
+            var bullet = d3.select(this).selectAll('g.bullet').data(data);
+            bullet.enter().append('g').classed('bullet', true);
+            bullet.exit().remove();
+            bullet.attr('transform', 'translate(' + size.l + ', ' + size.t + ')');
+
+            // Draw cartesian axis
+            // force full redraw of labels and ticks
+            var bulletaxis = d3.select(this).selectAll('g.bulletaxis').data(data);
+            bulletaxis.enter().append('g')
+                .classed('bulletaxis', true)
+                .classed('crisp', true);
+            bulletaxis.selectAll('g.' + 'xbulletaxis' + 'tick,path').remove();
+            bulletaxis.exit().remove();
+
             if(isAngular) {
                 ax = mockAxis(gd, opts);
                 ax.type = 'indicator';
@@ -362,11 +417,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     return -0.5 * (1 + Math.sin(rad)) * h;
                 };
 
-                var shift;
                 var _transFn = function(rad) {
                     return strTranslate(gaugePosition[0] + radius * Math.cos(rad), gaugePosition[1] - radius * Math.sin(rad));
                 };
-                var transFn = function(d) {
+                transFn = function(d) {
                     return _transFn(t2g(d));
                 };
                 var transFn2 = function(d) {
@@ -374,15 +428,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     return _transFn(rad) + strRotate(-rad2deg(rad));
                 };
 
-                var angularaxisLayer = d3.select(this).selectAll('g.angularaxis').data(data);
-                angularaxisLayer.enter().append('g')
-                      .classed('angularaxis', true)
-                      .classed('crisp', true);
-                angularaxisLayer.exit().remove();
-                angularaxisLayer.selectAll('g.' + ax._id + 'tick,path').remove();
-
-                var vals = Axes.calcTicks(ax);
-                var tickSign;
+                vals = Axes.calcTicks(ax);
+                tickSign;
 
                 if(ax.visible) {
                     tickSign = ax.ticks === 'inside' ? -1 : 1;
@@ -404,27 +451,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     });
                 }
 
-                // Reexpress our background attributes for drawing
-                var gaugeBg = {
-                    range: [trace.vmin, trace.vmax],
-                    color: trace.gauge.bgcolor,
-                    line: {
-                        color: trace.gauge.bordercolor,
-                        width: 0
-                    },
-                    height: 1
-                };
-
-                var gaugeOutline = {
-                    range: [trace.vmin, trace.vmax],
-                    color: 'rgba(0, 0, 0, 0)',
-                    line: {
-                        color: trace.gauge.bordercolor,
-                        width: trace.gauge.borderwidth
-                    },
-                    height: 1
-                };
-
                 // Reexpress threshold for drawing
                 var v = trace.gauge.threshold.value;
                 var thresholdArc = {
@@ -436,22 +462,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     },
                     height: trace.gauge.threshold.height
                 };
-
-                function drawArc(p) {
-                    p
-                            .attr('d', function(d) {
-                                return arcPathGenerator(d.height)
-                                  .startAngle(valueToAngle(d.range[0]))
-                                  .endAngle(valueToAngle(d.range[1]))();
-                            });
-                }
-
-                function styleShape(p) {
-                    p
-                            .style('fill', function(d) { return d.color;})
-                            .style('stroke', function(d) { return d.line.color;})
-                            .style('stroke-width', function(d) { return d.line.width;});
-                }
 
                 // Draw background + steps
                 var arcs = [gaugeBg].concat(trace.gauge.steps);
@@ -488,31 +498,15 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 gaugeBorder.exit().remove();
             }
 
-            // Draw bullet
-            var bulletLeft = domain.x[0];
-            var bulletRight = domain.x[0] + (domain.x[1] - domain.x[0]) * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
-
-            data = cd.filter(function() {return isBullet;});
-            var innerBulletHeight = trace.gauge.value.height * bulletHeight;
-            var bullet = d3.select(this).selectAll('g.bullet').data(data);
-            bullet.enter().append('g').classed('bullet', true);
-            bullet.exit().remove();
-            bullet.attr('transform', 'translate(' + size.l + ', ' + size.t + ')');
-
             if(isBullet) {
+                // Draw bullet
+                var bulletLeft = domain.x[0];
+                var bulletRight = domain.x[0] + (domain.x[1] - domain.x[0]) * ((hasBigNumber || hasDelta) ? (1 - cn.bulletNumberDomainSize) : 1);
+
                 ax = mockAxis(gd, opts, range);
+                ax._id = 'xbulletaxis';
                 ax.domain = [bulletLeft, bulletRight];
                 ax.setScale();
-
-
-                // Draw cartesian axis
-                // force full redraw of labels and ticks
-                var bulletaxis = d3.select(this).selectAll('g.bulletaxis').data(data);
-                bulletaxis.enter().append('g')
-                    .classed('bulletaxis', true)
-                    .classed('crisp', true);
-                bulletaxis.selectAll('g.' + ax._id + 'tick,path').remove();
-                bulletaxis.exit().remove();
 
                 vals = Axes.calcTicks(ax);
                 transFn = Axes.makeTransFn(ax);
@@ -608,6 +602,13 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         });
     });
 };
+
+function styleShape(p) {
+    p
+        .style('fill', function(d) { return d.color;})
+        .style('stroke', function(d) { return d.line.color;})
+        .style('stroke-width', function(d) { return d.line.width;});
+}
 
 // Returns a tween for a transition’s "d" attribute, transitioning any selected
 // arcs from their current angle to the specified new angle.
