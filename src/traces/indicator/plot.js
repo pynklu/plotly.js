@@ -143,13 +143,15 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         };
         drawNumbers(gd, plotGroup, cd, numbersOpts);
 
-        // Draw circular gauge
+        // Draw angular gauge
         var data = cd.filter(function() {return isAngular;});
         var angularGauge = plotGroup.selectAll('g.angular').data(data);
         angularGauge.exit().remove();
 
         var angularaxisLayer = plotGroup.selectAll('g.angularaxis').data(data);
         angularaxisLayer.exit().remove();
+
+        // if(isAngular) drawAngularGauge(gd, plotGroup, cd, opts);
 
         // Draw bullet gauge
         data = cd.filter(function() {return isBullet;});
@@ -435,6 +437,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         // title
         var title = plotGroup.selectAll('text.title').data(cd);
+        title.exit().remove();
         title.enter().append('text').classed('title', true);
         title
             .attr('text-anchor', function() {
@@ -443,7 +446,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             .text(trace.title.text)
             .call(Drawing.font, trace.title.font)
             .call(svgTextUtils.convertToTspans, gd);
-        title.exit().remove();
         title.attr('transform', function() {
             var titleX = size.l + size.w * position[trace.title.align];
             if(hasGauge) {
@@ -526,77 +528,86 @@ function drawNumbers(gd, plotGroup, cd, opts) {
         });
     sel.exit().remove();
 
-    // bignumber
-    var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
-    var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
-    var bignumberSuffix = trace.number.suffix;
-    if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;
+    function drawBignumber() {
+        // bignumber
+        var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
+        var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
+        var bignumberSuffix = trace.number.suffix;
+        if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;
 
-    var number = numbers.select('tspan.number');
-    number
-        .call(Drawing.font, trace.number.font)
-        .attr('x', null)
-        .attr('dy', bignumberY);
-
-    // delta
-    var deltaAx = mockAxis(gd, {tickformat: trace.delta.valueformat});
-    var deltaFmt = function(v) { return Axes.tickText(deltaAx, v).text;};
-    if(!trace._deltaLastValue) trace._deltaLastValue = 0;
-    var deltaValue = function(d) {
-        var value = trace.delta.showpercentage ? d.relativeDelta : d.delta;
-        return value;
-    };
-    var deltaFormatText = function(value) {
-        if(value === 0) return '-';
-        return (value > 0 ? trace.delta.increasing.symbol : trace.delta.decreasing.symbol) + deltaFmt(value);
-    };
-    var deltaFill = function(d) {
-        return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
-    };
-    var delta = numbers.select('tspan.delta');
-    delta
-        .call(Drawing.font, trace.delta.font)
-        .style('fill', deltaFill)
-        .attr('x', deltaX)
-        .attr('dy', deltaDy);
-
-    if(hasTransition) {
+        var number = numbers.select('tspan.number');
         number
-            .transition()
-            .duration(transitionOpts.duration)
-            .ease(transitionOpts.easing)
-            .each('end', function() { onComplete && onComplete(); })
-            .each('interrupt', function() { onComplete && onComplete(); })
-            .attrTween('text', function() {
-                var that = d3.select(this);
-                var interpolator = d3.interpolateNumber(cd[0].lastY, cd[0].y);
-                return function(t) {
-                    that.text(fmt(interpolator(t)) + bignumberSuffix);
-                };
-            });
+            .call(Drawing.font, trace.number.font)
+            .attr('x', null)
+            .attr('dy', bignumberY);
 
-        delta
-            .transition()
-            .duration(transitionOpts.duration)
-            .ease(transitionOpts.easing)
-            .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
-            .each('interrupt', function() { onComplete && onComplete(); })
-            .attrTween('text', function(d) {
-                var that = d3.select(this);
-                var to = deltaValue(d);
-                var from = trace._deltaLastValue;
-                var interpolator = d3.interpolateNumber(from, to);
-                return function(t) {
-                    that.text(deltaFormatText(interpolator(t)));
-                };
-            });
-    } else {
-        number.text(fmt(cd[0].y) + bignumberSuffix);
-
-        delta.text(function(d) {
-            return deltaFormatText(deltaValue(d));
-        });
+        if(hasTransition) {
+            number
+                .transition()
+                .duration(transitionOpts.duration)
+                .ease(transitionOpts.easing)
+                .each('end', function() { onComplete && onComplete(); })
+                .each('interrupt', function() { onComplete && onComplete(); })
+                .attrTween('text', function() {
+                    var that = d3.select(this);
+                    var interpolator = d3.interpolateNumber(cd[0].lastY, cd[0].y);
+                    return function(t) {
+                        that.text(fmt(interpolator(t)) + bignumberSuffix);
+                    };
+                });
+        } else {
+            number.text(fmt(cd[0].y) + bignumberSuffix);
+        }
     }
+
+    function drawDelta() {
+        // delta
+        var deltaAx = mockAxis(gd, {tickformat: trace.delta.valueformat});
+        var deltaFmt = function(v) { return Axes.tickText(deltaAx, v).text;};
+        if(!trace._deltaLastValue) trace._deltaLastValue = 0;
+        var deltaValue = function(d) {
+            var value = trace.delta.showpercentage ? d.relativeDelta : d.delta;
+            return value;
+        };
+        var deltaFormatText = function(value) {
+            if(value === 0) return '-';
+            return (value > 0 ? trace.delta.increasing.symbol : trace.delta.decreasing.symbol) + deltaFmt(value);
+        };
+        var deltaFill = function(d) {
+            return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
+        };
+        var delta = numbers.select('tspan.delta');
+        delta
+            .call(Drawing.font, trace.delta.font)
+            .style('fill', deltaFill)
+            .attr('x', deltaX)
+            .attr('dy', deltaDy);
+
+        if(hasTransition) {
+            delta
+                .transition()
+                .duration(transitionOpts.duration)
+                .ease(transitionOpts.easing)
+                .each('end', function(d) { trace._deltaLastValue = deltaValue(d); onComplete && onComplete(); })
+                .each('interrupt', function() { onComplete && onComplete(); })
+                .attrTween('text', function(d) {
+                    var that = d3.select(this);
+                    var to = deltaValue(d);
+                    var from = trace._deltaLastValue;
+                    var interpolator = d3.interpolateNumber(from, to);
+                    return function(t) {
+                        that.text(deltaFormatText(interpolator(t)));
+                    };
+                });
+        } else {
+            delta.text(function(d) {
+                return deltaFormatText(deltaValue(d));
+            });
+        }
+    }
+
+    drawBignumber();
+    drawDelta();
 
     // Resize numbers to fit within space and position
     var numbersbBox;
@@ -611,6 +622,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
         var translateY;
         if(trace._isAngular) {
             // bottom-align
+            console.log('isAngular');
             translateY = numbersY - scaleRatio * numbersbBox.bottom;
         } else {
             // center-align

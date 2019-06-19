@@ -115,6 +115,7 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     } else {
         coerce('title.align', 'center');
         coerce('align', 'center');
+        traceOut._isAngular = traceOut._isBullet = false;
     }
 
     // delta attributes
