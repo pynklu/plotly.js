@@ -53,13 +53,13 @@ module.exports = {
         // TODO: better way to determine ordinal vs continuous axes,
         // so users can use tickvals/ticktext with a continuous axis.
         tickvals: extendFlat({}, axesAttrs.tickvals, {
-            editType: 'plot', // TODO: test
+            editType: 'calc', // TODO: test
             description: [
                 'Sets the values at which ticks on this axis appear.'
             ].join(' ')
         }),
         ticktext: extendFlat({}, axesAttrs.ticktext, {
-            editType: 'plot', // TODO: test
+            editType: 'calc', // TODO: test
             description: [
                 'Sets the text displayed at the ticks position via `tickvals`.'
             ].join(' ')
@@ -68,7 +68,7 @@ module.exports = {
             valType: 'string',
             dflt: '3s',
             role: 'style',
-            editType: 'plot', // TODO: test
+            editType: 'calc', // TODO: test
             description: [ // TODO: should update this description?
                 'Sets the tick label formatting rule using d3 formatting mini-language',
                 'which is similar to those of Python. See',
