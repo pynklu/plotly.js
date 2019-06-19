@@ -18,7 +18,7 @@ var colorAttrs = require('../../components/color/attributes');
 var domainAttrs = require('../../plots/domain').attributes;
 var axesAttrs = require('../../plots/cartesian/layout_attributes');
 var templatedArray = require('../../plot_api/plot_template').templatedArray;
-var cn = require('./constants.js');
+var delta = require('../../constants/delta.js');
 
 var textFontAttrs = fontAttrs({
     editType: 'plot',
@@ -240,7 +240,7 @@ module.exports = {
             symbol: {
                 valType: 'string',
                 role: 'info',
-                dflt: cn.DIRSYMBOL.increasing,
+                dflt: delta.INCREASING.SYMBOL,
                 editType: 'plot',
                 description: [
                     'Sets the symbol to display for increasing value'
@@ -249,7 +249,7 @@ module.exports = {
             color: {
                 valType: 'color',
                 role: 'info',
-                dflt: cn.INCREASING_COLOR,
+                dflt: delta.INCREASING.COLOR,
                 editType: 'plot',
                 description: [
                     'Sets the color for increasing value.'
@@ -261,7 +261,7 @@ module.exports = {
             symbol: {
                 valType: 'string',
                 role: 'info',
-                dflt: cn.DIRSYMBOL.decreasing,
+                dflt: delta.DECREASING.SYMBOL,
                 editType: 'plot',
                 description: [
                     'Sets the symbol to display for increasing value'
@@ -270,7 +270,7 @@ module.exports = {
             color: {
                 valType: 'color',
                 role: 'info',
-                dflt: cn.DECREASING_COLOR,
+                dflt: delta.DECREASING.COLOR,
                 editType: 'plot',
                 description: [
                     'Sets the color for increasing value.'

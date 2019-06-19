@@ -10,12 +10,6 @@
 
 module.exports = {
     // Defaults for delta
-    INCREASING_COLOR: '#3D9970',
-    DECREASING_COLOR: '#FF4136',
-    DIRSYMBOL: {
-        increasing: '▲',
-        decreasing: '▼'
-    },
     defaultNumberFontSize: 80,
     bulletNumberDomainSize: 0.25,
     bulletPadding: 0.025,
