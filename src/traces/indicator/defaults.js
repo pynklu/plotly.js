@@ -119,7 +119,7 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     }
 
     // delta attributes
-    // if(traceOut._hasDelta) {
+    if(traceOut._hasDelta) {
         coerce('delta.font.color', layout.font.color);
         coerce('delta.font.family', layout.font.family);
         coerce('delta.font.size', (traceOut._hasBigNumber ? 0.5 : 1) * (bignumberFontSize || cn.defaultNumberFontSize));
@@ -131,7 +131,7 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         coerce('delta.decreasing.symbol');
         coerce('delta.decreasing.color');
         coerce('delta.position');
-    // }
+    }
 }
 
 function stepDefaults(valueIn, valueOut) {

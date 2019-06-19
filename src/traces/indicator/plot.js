@@ -470,8 +470,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
 function drawNumbers(gd, plotGroup, cd, opts) {
     var trace = cd[0].trace;
-    var bignumberFontSize = trace.number.font.size;
-    var deltaFontSize = trace.delta.font.size;
     var numbersX = opts.numbersX;
     var numbersY = opts.numbersY;
     var numbersAnchor = opts.numbersAnchor;
@@ -479,6 +477,10 @@ function drawNumbers(gd, plotGroup, cd, opts) {
     var hasTransition = opts.hasTransition;
     var transitionOpts = opts.transitionOpts;
     var onComplete = opts.onComplete;
+
+    var bignumberFontSize, deltaFontSize;
+    if(trace._hasBigNumber) bignumberFontSize = trace.number.font.size;
+    if(trace._hasDelta) deltaFontSize = trace.delta.font.size;
 
     // Position delta relative to bignumber
     var deltaDy = 0;
@@ -506,24 +508,22 @@ function drawNumbers(gd, plotGroup, cd, opts) {
     numbers.enter().append('text').classed('numbers', true);
 
     var data = [];
-    var numberSpec = {
-        class: 'number'
-    };
-    var deltaSpec = {
-        class: 'delta'
-    };
-    if(trace._hasBigNumber) data.push(numberSpec);
-    if(trace._hasDelta) data.push(deltaSpec);
-    if(trace.delta.position === 'left') data.reverse();
+    if(trace._hasBigNumber) data.push('number');
+    if(trace._hasDelta) {
+        data.push('delta');
+        if(trace.delta.position === 'left') data.reverse();
+    }
     var sel = numbers.selectAll('tspan').data(data);
     sel.enter().append('tspan');
     sel
         .attr('text-anchor', function() {return numbersAnchor;})
-        .attr('class', function(d) { return d.class;})
+        .attr('class', function(d) { return d;})
         .attr('dx', function(d, i) {
-            var pos = trace.delta.position;
             // Add padding to the second tspan when it's a one-liner
-            if(i === 1 && (pos === 'left' || pos === 'right')) return 10;
+            if(i === 1) {
+                var pos = trace.delta.position;
+                if(pos === 'left' || pos === 'right') return 10;
+            }
             return null;
         });
     sel.exit().remove();
@@ -606,11 +606,10 @@ function drawNumbers(gd, plotGroup, cd, opts) {
         }
     }
 
-    drawBignumber();
-    drawDelta();
+    if(trace._hasBigNumber) drawBignumber();
+    if(trace._hasDelta) drawDelta();
 
     // Resize numbers to fit within space and position
-    var numbersbBox;
     numbers.attr('transform', function() {
         var m = opts.numbersScaler(numbers);
         var key = m[2];
@@ -618,20 +617,18 @@ function drawNumbers(gd, plotGroup, cd, opts) {
             trace._numbersScale = {key: key, value: 1};
         }
         var scaleRatio = trace._numbersScale.value = Math.min(trace._numbersScale.value, m[0]);
-        numbersbBox = m[1];
+        var numbersbBox = m[1];
         var translateY;
         if(trace._isAngular) {
-            // bottom-align
-            console.log('isAngular');
+            // align vertically to bottom
             translateY = numbersY - scaleRatio * numbersbBox.bottom;
         } else {
-            // center-align
+            // align vertically to center
             translateY = numbersY - scaleRatio * (numbersbBox.top + numbersbBox.bottom) / 2;
         }
 
-        // If no gauge, compute title position relative to numbers
+        // Stash the top position of numbersbBox for title positioning
         trace._numbersTop = scaleRatio * (numbersbBox.top) + translateY;
-        // titleY = scaleRatio * (numbersbBox.top) + translateY - opts.titlePadding;
 
         return strTranslate(numbersX, translateY) + ' scale(' + scaleRatio + ')';
     });
