@@ -349,7 +349,7 @@ module.exports = function(canvasGL, d) {
         return itemModel;
     }
 
-    function makeConstraints(isContext) {
+    function makeConstraints() {
         var i, j, k;
 
         var limits = [[], []];
@@ -373,23 +373,21 @@ module.exports = function(canvasGL, d) {
         for(i = 0; i < maskHeight * 8; i++) {
             mask[i] = 255;
         }
-        if(!isContext) {
-            for(i = 0; i < initialDims.length; i++) {
-                var u = i % 8;
-                var v = (i - u) / 8;
-                var bitMask = Math.pow(2, u);
-                var dim = initialDims[i];
-                var ranges = dim.brush.filter.get();
-                if(ranges.length < 2) continue; // bail if the bounding box based filter is sufficient
+        for(i = 0; i < initialDims.length; i++) {
+            var u = i % 8;
+            var v = (i - u) / 8;
+            var bitMask = Math.pow(2, u);
+            var dim = initialDims[i];
+            var ranges = dim.brush.filter.get();
+            if(ranges.length < 2) continue; // bail if the bounding box based filter is sufficient
 
-                var prevEnd = expandedPixelRange(ranges[0])[1];
-                for(j = 1; j < ranges.length; j++) {
-                    var nextRange = expandedPixelRange(ranges[j]);
-                    for(k = prevEnd + 1; k < nextRange[0]; k++) {
-                        mask[k * 8 + v] &= ~bitMask;
-                    }
-                    prevEnd = Math.max(prevEnd, nextRange[1]);
+            var prevEnd = expandedPixelRange(ranges[0])[1];
+            for(j = 1; j < ranges.length; j++) {
+                var nextRange = expandedPixelRange(ranges[j]);
+                for(k = prevEnd + 1; k < nextRange[0]; k++) {
+                    mask[k * 8 + v] &= ~bitMask;
                 }
+                prevEnd = Math.max(prevEnd, nextRange[1]);
             }
         }
 
@@ -443,7 +441,7 @@ module.exports = function(canvasGL, d) {
             // clear canvas here, as the panel iteration below will not enter the loop body
             clear(regl, 0, 0, model.canvasWidth, model.canvasHeight);
         }
-        var constraints = makeConstraints(context);
+        var constraints = makeConstraints();
 
         for(i = 0; i < panelCount; i++) {
             var p = panels[i];
