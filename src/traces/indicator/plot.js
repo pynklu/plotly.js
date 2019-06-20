@@ -579,7 +579,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
                 .transition()
                 .duration(transitionOpts.duration)
                 .ease(transitionOpts.easing)
-                .each('end', function() { onComplete && onComplete(); })
+                .each('end', function() { trace._lastValue = cd[0].y; onComplete && onComplete(); })
                 .each('interrupt', function() { onComplete && onComplete(); })
                 .attrTween('text', function() {
                     var that = d3.select(this);
