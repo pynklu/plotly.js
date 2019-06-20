@@ -25,7 +25,6 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     }
 
     handleDomainDefaults(traceOut, layout, coerce);
-    coerce('value');
 
     // Mode
     coerce('mode');
@@ -33,24 +32,52 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     traceOut._hasDelta = traceOut.mode.indexOf('delta') !== -1;
     traceOut._hasGauge = traceOut.mode.indexOf('gauge') !== -1;
 
+    coerce('value');
+    coerce('vmin');
+    coerce('vmax', 1.5 * traceOut.value);
+
     // Number attributes
+    var auto = [];
     var bignumberFontSize;
     if(traceOut._hasNumber) {
         coerce('valueformat');
         coerce('number.font.color', layout.font.color);
         coerce('number.font.family', layout.font.family);
-        coerce('number.font.size', cn.defaultNumberFontSize);
+        coerce('number.font.size', 'auto');
+        if(traceOut.number.font.size === 'auto') {
+            traceOut.number.font.size = cn.defaultNumberFontSize;
+            auto[0] = true;
+        }
         coerce('number.suffix');
         bignumberFontSize = traceOut.number.font.size;
     }
 
-    coerce('vmin');
-    coerce('vmax', 1.5 * traceOut.value);
+    // delta attributes
+    var deltaFontSize;
+    if(traceOut._hasDelta) {
+        coerce('delta.font.color', layout.font.color);
+        coerce('delta.font.family', layout.font.family);
+        coerce('delta.font.size', 'auto');
+        if(traceOut.delta.font.size === 'auto') {
+            traceOut.delta.font.size = (traceOut._hasNumber ? 0.5 : 1) * (bignumberFontSize || cn.defaultNumberFontSize);
+            auto[1] = true;
+        }
+        coerce('delta.reference', traceOut.value);
+        coerce('delta.relative');
+        coerce('delta.valueformat', traceOut.delta.relative ? '2%' : '.3s');
+        coerce('delta.increasing.symbol');
+        coerce('delta.increasing.color');
+        coerce('delta.decreasing.symbol');
+        coerce('delta.decreasing.color');
+        coerce('delta.position');
+        deltaFontSize = traceOut.delta.font.size;
+    }
+    traceOut._scaleNumbers = (!traceOut._hasNumber || auto[0]) && (!traceOut._hasDelta || auto[1]) || false;
 
     // Title attributes
     coerce('title.font.color', layout.font.color);
     coerce('title.font.family', layout.font.family);
-    coerce('title.font.size', 0.25 * (bignumberFontSize || cn.defaultNumberFontSize));
+    coerce('title.font.size', 0.25 * (bignumberFontSize || deltaFontSize || cn.defaultNumberFontSize));
     coerce('title.text');
 
     // Gauge attributes
@@ -115,21 +142,6 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         coerce('title.align', 'center');
         coerce('align', 'center');
         traceOut._isAngular = traceOut._isBullet = false;
-    }
-
-    // delta attributes
-    if(traceOut._hasDelta) {
-        coerce('delta.font.color', layout.font.color);
-        coerce('delta.font.family', layout.font.family);
-        coerce('delta.font.size', (traceOut._hasNumber ? 0.5 : 1) * (bignumberFontSize || cn.defaultNumberFontSize));
-        coerce('delta.reference', traceOut.value);
-        coerce('delta.relative');
-        coerce('delta.valueformat', traceOut.delta.relative ? '2%' : '.3s');
-        coerce('delta.increasing.symbol');
-        coerce('delta.increasing.color');
-        coerce('delta.decreasing.symbol');
-        coerce('delta.decreasing.color');
-        coerce('delta.position');
     }
 }
 

@@ -654,6 +654,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
         var scaleRatio = trace._numbersScale.value = Math.min(trace._numbersScale.value, m[0]);
         var numbersbBox = m[1];
         var translateY;
+        if(!trace._scaleNumbers) scaleRatio = 1;
         if(trace._isAngular) {
             // align vertically to bottom
             translateY = numbersY - scaleRatio * numbersbBox.bottom;

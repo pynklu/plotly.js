@@ -54,7 +54,7 @@ describe('Indicator defaults', function() {
     });
 
     // text alignment
-    ['bignumber'].forEach(function(mode) {
+    ['number'].forEach(function(mode) {
         it('aligns to center', function() {
             var out = _supply({
                 type: 'indicator',
@@ -85,16 +85,39 @@ describe('Indicator defaults', function() {
         expect(out.number.font.size).toBe(80);
     });
 
-    it('delta font size to a fraction of number', function() {
+    it('delta font size to a fraction of number if present', function() {
         var out = _supply({type: 'indicator', mode: 'delta+number', value: 1, number: {font: {size: 50}}});
         expect(out.number.font.size).toBe(50);
         expect(out.delta.font.size).toBe(25);
     });
 
-    it('title font size to a fraction of number', function() {
+    it('delta font size to default number font size if absent', function() {
+        var out = _supply({type: 'indicator', mode: 'delta', value: 1});
+        expect(out.delta.font.size).toBe(80);
+    });
+
+    it('title font size to a fraction of number font size', function() {
         var out = _supply({type: 'indicator', value: 1, number: {font: {size: 50}}});
         expect(out.number.font.size).toBe(50);
         expect(out.title.font.size).toBe(12.5);
+    });
+
+    it('title font size to a fraction of delta number font size', function() {
+        var out = _supply({type: 'indicator', mode: 'delta', value: 1, delta: {font: {size: 50}}});
+        expect(out.title.font.size).toBe(12.5);
+    });
+
+    it('title font size to a fraction of default number font size if no numbers', function() {
+        var out = _supply({type: 'indicator', value: 1});
+        expect(out.title.font.size).toBe(20);
+    });
+
+    it('will not scale numbers if either number.font.size or delta.font.size is set', function() {
+        var out = _supply({type: 'indicator', mode: 'number+delta', value: 1, number: {font: {size: 20}}});
+        expect(out._scaleNumbers).toBe(false);
+
+        out = _supply({type: 'indicator', mode: 'number+delta', value: 1, delta: {font: {size: 20}}});
+        expect(out._scaleNumbers).toBe(false);
     });
 });
 
@@ -117,7 +140,7 @@ describe('Indicator plot', function() {
             expect(scale).toBeCloseTo(value, 1, msg);
         }
 
-        it('numbers scale down to fit figure size', function(done) {
+        it('scale down to fit figure size', function(done) {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
                 value: 500,
@@ -138,7 +161,7 @@ describe('Indicator plot', function() {
             .then(done);
         });
 
-        it('if domain size is constant, numbers scale down but never back up', function(done) {
+        it('scale down but never back up if domain size is constant', function(done) {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
                 value: 1,
@@ -159,27 +182,31 @@ describe('Indicator plot', function() {
             .then(done);
         });
 
-        // it('if font-size is specified, never scale', function(done) {
-        //     Plotly.newPlot(gd, [{
-        //         type: 'indicator',
-        //         value: 1,
-        //         valueformat: '0.f',
-        //         number: {font: {size: 100}}
-        //     }], {width: 400, height: 400})
-        //     .then(function() {
-        //         checkNumbersScale(1, 'initialy at normal scale');
-        //         return Plotly.restyle(gd, 'value', [1E6]);
-        //     })
-        //     .then(function() {
-        //         checkNumbersScale(1, 'should not rescale');
-        //         return Plotly.restyle(gd, 'value', [1]);
-        //     })
-        //     .then(function() {
-        //         checkNumbersScale(1, 'should not rescale');
-        //     })
-        //     .catch(failTest)
-        //     .then(done);
-        // });
+        ['number', 'delta'].forEach(function(numberType) {
+            it('if ' + numberType + ' font-size is specified, never scale', function(done) {
+                var figure = {
+                    type: 'indicator',
+                    mode: 'number+delta',
+                    value: 1,
+                    valueformat: '0.f'
+                };
+                figure[numberType] = {font: {size: 100}};
+                Plotly.newPlot(gd, [figure], {width: 400, height: 400})
+                .then(function() {
+                    checkNumbersScale(1, 'initialy at normal scale');
+                    return Plotly.restyle(gd, 'value', [1E6]);
+                })
+                .then(function() {
+                    checkNumbersScale(1, 'should not rescale');
+                    return Plotly.restyle(gd, 'value', [1]);
+                })
+                .then(function() {
+                    checkNumbersScale(1, 'should not rescale');
+                })
+                .catch(failTest)
+                .then(done);
+            });
+        });
     });
 
     describe('delta', function() {
@@ -192,11 +219,11 @@ describe('Indicator plot', function() {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
                 mode: 'number+delta',
-                value: 110,
-                delta: {reference: 100}
+                value: 220,
+                delta: {reference: 200}
             }], {width: 400, height: 400})
             .then(function() {
-                assertContent(gd._fullData[0].delta.increasing.symbol + '10.0');
+                assertContent(gd._fullData[0].delta.increasing.symbol + '20.0');
                 return Plotly.restyle(gd, 'delta.relative', true);
             })
             .then(function() {
@@ -229,6 +256,7 @@ describe('Indicator plot', function() {
             assertElementCnt('g.' + shape + 'axis', cnt);
         }
         function assert(flags) {
+            // flags is an array denoting whether the figure [hasNumber, hasDelta, hasAngular, hasBullet]
             assertElementCnt('tspan.number', flags[0]);
             assertElementCnt('tspan.delta', flags[1]);
             assertGauge('angular', flags[2]);
