@@ -172,27 +172,6 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - test-bundle:
-          requires:
-            - build
-      - test-jasmine:
-          requires:
-            - build
       - test-jasmine2:
-          requires:
-            - build
-      - test-jasmine3:
-          requires:
-            - build
-      - test-image:
-          requires:
-            - build
-      - test-image2:
-          requires:
-            - build
-      - test-syntax:
-          requires:
-            - build
-      - publish:
           requires:
             - build
