@@ -1,9 +1,11 @@
 var Plotly = require('@lib/index');
+var Plots = require('@src/plots/plots');
 // var Lib = require('@src/lib');
-//
+
 var d3 = require('d3');
 var createGraphDiv = require('../assets/create_graph_div');
 var destroyGraphDiv = require('../assets/destroy_graph_div');
+var delay = require('../assets/delay');
 var failTest = require('../assets/fail_test');
 // var click = require('../assets/click');
 // var getClientPosition = require('../assets/get_client_position');
@@ -294,6 +296,33 @@ describe('Indicator plot', function() {
         })
         .then(function() {
             assert([1, 1, 0, 1]);
+        })
+        .catch(failTest)
+        .then(done);
+    });
+});
+
+describe('Indicator animations', function() {
+    var gd;
+    beforeEach(function() {
+        gd = createGraphDiv();
+    });
+    afterEach(destroyGraphDiv);
+
+    it('should be able to transition sunburst traces via `Plotly.react`', function(done) {
+        var mock = {data: [{type: 'indicator', value: 100}], layout: {}};
+        mock.layout.transition = {duration: 200};
+
+        spyOn(Plots, 'transitionFromReact').and.callThrough();
+
+        Plotly.plot(gd, mock)
+        .then(function() {
+            gd.data[0].value = '400';
+            return Plotly.react(gd, gd.data, gd.layout);
+        })
+        .then(delay(300))
+        .then(function() {
+            expect(Plots.transitionFromReact).toHaveBeenCalledTimes(1);
         })
         .catch(failTest)
         .then(done);

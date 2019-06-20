@@ -108,6 +108,7 @@ module.exports = {
         valType: 'number',
         editType: 'calc',
         role: 'info',
+        anim: true,
         description: [
             'Sets the number to be displayed.'
         ].join(' ')
