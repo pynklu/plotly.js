@@ -375,7 +375,8 @@ module.exports = {
                     description: [
                         'Sets the width (in px) of the threshold line.'
                     ].join(' ')
-                }
+                },
+                editType: 'plot'
             },
             thickness: {
                 valType: 'number',
