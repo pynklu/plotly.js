@@ -21,7 +21,6 @@ var Axes = require('../../plots/cartesian/axes');
 var handleAxisDefaults = require('../../plots/cartesian/axis_defaults');
 var handleAxisPositionDefaults = require('../../plots/cartesian/position_defaults');
 var axisLayoutAttrs = require('../../plots/cartesian/layout_attributes');
-var setConvertPolar = require('../../plots/polar/set_convert');
 
 var anchor = {
     'left': 'start',
@@ -341,7 +340,6 @@ function drawBulletGauge(gd, plotGroup, cd, gaugeOpts) {
 
 function drawAngularGauge(gd, plotGroup, cd, gaugeOpts) {
     var trace = cd[0].trace;
-    var fullLayout = gd._fullLayout;
 
     var size = gaugeOpts.size;
     var radius = gaugeOpts.radius;
@@ -395,16 +393,16 @@ function drawAngularGauge(gd, plotGroup, cd, gaugeOpts) {
     angularaxisLayer.selectAll('g.' + 'angularaxis' + 'tick,path').remove();
 
     ax = mockAxis(gd, opts);
-    ax.type = 'indicator';
+    ax.type = 'linear';
     ax.range = [trace.vmin, trace.vmax];
-    ax._id = 'angularaxis';
-    ax.direction = 'clockwise';
-    ax.rotation = 180;
-    setConvertPolar(ax, {sector: [0, 180]}, fullLayout);
-    ax.setGeometry();
+    ax._id = 'x'; // or 'y', but I don't think this makes a difference here
     ax.setScale();
+
     // 't'ick to 'g'eometric radians is used all over the place here
-    var t2g = function(d) { return ax.t2g(d.x); };
+    var t2g = function(d) {
+        return (ax.range[0] - d.x) / (ax.range[1] - ax.range[0]) * Math.PI + Math.PI;
+    };
+
     var labelFns = {};
     var out = Axes.makeLabelFns(ax, 0);
     var labelStandoff = out.labelStandoff;
