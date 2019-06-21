@@ -93,7 +93,7 @@ describe('Indicator defaults', function() {
         expect(out.delta.font.size).toBe(25);
     });
 
-    it('delta font size to default number font size if absent', function() {
+    it('delta font size to default number font size if no number', function() {
         var out = _supply({type: 'indicator', mode: 'delta', value: 1});
         expect(out.delta.font.size).toBe(80);
     });
@@ -309,7 +309,7 @@ describe('Indicator animations', function() {
     });
     afterEach(destroyGraphDiv);
 
-    it('should be able to transition sunburst traces via `Plotly.react`', function(done) {
+    it('should be able to transition via `Plotly.react`', function(done) {
         var mock = {data: [{type: 'indicator', value: 100}], layout: {}};
         mock.layout.transition = {duration: 200};
 
@@ -328,7 +328,3 @@ describe('Indicator animations', function() {
         .then(done);
     });
 });
-
-// It is animatable (check Sunburst)
-
-// Add couple mocks
