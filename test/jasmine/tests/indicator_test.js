@@ -212,13 +212,55 @@ describe('Indicator plot', function() {
         });
     });
 
+    describe('number', function() {
+        function assertContent(txt) {
+            var sel = d3.selectAll('tspan.number');
+            expect(sel.length).toBe(1);
+            expect(sel.text()).toBe(txt);
+        }
+        it('formats value via `valueformat`', function(done) {
+            Plotly.newPlot(gd, [{
+                type: 'indicator',
+                mode: 'number',
+                value: 220,
+            }])
+            .then(function() {
+                assertContent('220');
+                return Plotly.restyle(gd, 'valueformat', '0.3f');
+            })
+            .then(function() {
+                assertContent('220.000');
+                return Plotly.restyle(gd, 'valueformat', '$');
+            })
+            .then(function() {
+                assertContent('$220');
+            })
+            .catch(failTest)
+            .then(done);
+        });
+
+        it('supports suffix', function(done) {
+            Plotly.newPlot(gd, [{
+                type: 'indicator',
+                mode: 'number',
+                number: {suffix: 'potatoes'},
+                value: 220,
+            }])
+            .then(function() {
+                assertContent('220 potatoes');
+            })
+            .catch(failTest)
+            .then(done);
+        });
+    });
+
     describe('delta', function() {
         function assertContent(txt) {
             var sel = d3.selectAll('tspan.delta');
             expect(sel.length).toBe(1);
             expect(sel.text()).toBe(txt);
         }
-        it('displays relative changes', function(done) {
+        it('can display relative changes', function(done) {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
                 mode: 'number+delta',
@@ -239,10 +281,6 @@ describe('Indicator plot', function() {
             .catch(failTest)
             .then(done);
         });
-    });
-
-    describe('angular gauge', function() {
-
     });
 
     describe('title', function() {
@@ -316,10 +354,6 @@ describe('Indicator plot', function() {
             .catch(failTest)
             .then(done);
         });
-    });
-
-    describe('bullet gauge', function() {
-
     });
 
     it('restyle between modes', function(done) {
