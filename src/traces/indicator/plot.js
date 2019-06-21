@@ -204,7 +204,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             if(hasGauge) {
                 if(isAngular) {
                     // position above axis ticks/labels
-                    var bBox = angularaxisLayer.node().getBoundingClientRect();
+                    var bBox = Drawing.bBox(angularaxisLayer.node());
                     titleY = (bBox.top - bBoxRef.top - titlePadding) - titlebBox.bottom;
                 }
                 if(isBullet) {

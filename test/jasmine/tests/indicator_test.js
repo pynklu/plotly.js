@@ -12,6 +12,7 @@ var failTest = require('../assets/fail_test');
 // var mouseEvent = require('../assets/mouse_event');
 var supplyAllDefaults = require('../assets/supply_defaults');
 var indicatorAttrs = require('@src/traces/indicator/attributes.js');
+var cn = require('@src/traces/indicator/constants.js');
 // var rgb = require('../../../src/components/color').rgb;
 
 // var customAssertions = require('../assets/custom_assertions');
@@ -242,6 +243,79 @@ describe('Indicator plot', function() {
 
     describe('angular gauge', function() {
 
+    });
+
+    describe('title', function() {
+        beforeEach(function() {
+            // hide the div
+            gd.style.display = 'none';
+            gd.style.top = 100;
+            gd.style.left = 100;
+        });
+
+        it('positions it above the numbers', function(done) {
+            Plotly.newPlot(gd, [{
+                type: 'indicator',
+                value: 1,
+                title: {text: 'Value'},
+                mode: 'number'
+            }])
+            .then(function() {
+                gd.style.display = 'block';
+
+                var t = d3.selectAll('text.title').node();
+                var titleBBox = t.getBoundingClientRect();
+
+                var numbers = d3.selectAll('text.numbers').node();
+                var numbersBBox = numbers.getBoundingClientRect();
+
+                expect(titleBBox.bottom).toBeCloseTo(numbersBBox.top - cn.titlePadding, 0);
+            })
+            .catch(failTest)
+            .then(done);
+        });
+
+        it('position it above angular axes', function(done) {
+            Plotly.newPlot(gd, [{
+                type: 'indicator',
+                value: 1,
+                title: {text: 'Value'},
+                mode: 'gauge',
+                gauge: {shape: 'angular'}
+            }])
+            .then(function() {
+                gd.style.display = 'block';
+                var t = d3.selectAll('text.title').node();
+                var titleBBox = t.getBoundingClientRect();
+
+                var ax = d3.selectAll('g.angularaxis').node();
+                var axBBox = ax.getBoundingClientRect();
+                expect(titleBBox.bottom).toBeCloseTo(axBBox.top - cn.titlePadding, 0);
+            })
+            .catch(failTest)
+            .then(done);
+        });
+
+        it('position it left of bullet', function(done) {
+            Plotly.newPlot(gd, [{
+                type: 'indicator',
+                value: 1,
+                title: {text: 'Value'},
+                mode: 'gauge',
+                gauge: {shape: 'bullet'}
+            }])
+            .then(function() {
+                gd.style.display = 'block';
+                var t = d3.selectAll('text.title').node();
+                var titleBBox = t.getBoundingClientRect();
+
+                var ax = d3.selectAll('g.bulletaxis').node();
+                var axBBox = ax.getBoundingClientRect();
+                expect(titleBBox.right < axBBox.left).toBe(true);
+            })
+            .catch(failTest)
+            .then(done);
+        });
     });
 
     describe('bullet gauge', function() {
