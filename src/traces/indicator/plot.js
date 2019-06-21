@@ -50,8 +50,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
     }
 
-    var bBoxRef = gd.getBoundingClientRect();
-
     Lib.makeTraceGroups(fullLayout._indicatorlayer, cdModule, 'trace').each(function(cd) {
         var cd0 = cd[0];
         var trace = cd0.trace;
@@ -205,7 +203,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 if(isAngular) {
                     // position above axis ticks/labels
                     var bBox = Drawing.bBox(angularaxisLayer.node());
-                    titleY = (bBox.top - bBoxRef.top - titlePadding) - titlebBox.bottom;
+                    titleY = (bBox.top - titlePadding) - titlebBox.bottom;
                 }
                 if(isBullet) {
                     // position outside domain
