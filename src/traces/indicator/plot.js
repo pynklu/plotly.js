@@ -561,7 +561,7 @@ function drawNumbers(gd, plotGroup, cd, opts) {
 
     function drawBignumber() {
         // bignumber
-        var bignumberAx = mockAxis(gd, {tickformat: trace.valueformat});
+        var bignumberAx = mockAxis(gd, {tickformat: trace.number.valueformat});
         var fmt = function(v) { return Axes.tickText(bignumberAx, v).text;};
         var bignumberSuffix = trace.number.suffix;
         if(bignumberSuffix) bignumberSuffix = ' ' + bignumberSuffix;

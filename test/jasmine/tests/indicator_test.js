@@ -47,7 +47,7 @@ describe('Indicator defaults', function() {
 
     it('defaults to formatting numbers using SI prefix', function() {
         var out = _supply({type: 'indicator', mode: 'number+delta', value: 1});
-        expect(out.valueformat).toBe('.3s');
+        expect(out.number.valueformat).toBe('.3s');
         expect(out.delta.valueformat).toBe('.3s');
     });
 
@@ -147,7 +147,7 @@ describe('Indicator plot', function() {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
                 value: 500,
-                valueformat: '0.f'
+                number: {valueformat: '0.f'}
             }], {width: 400, height: 400})
             .then(function() {
                 checkNumbersScale(1, 'initialy at normal scale');
@@ -168,7 +168,7 @@ describe('Indicator plot', function() {
             Plotly.newPlot(gd, [{
                 type: 'indicator',
                 value: 1,
-                valueformat: '0.f'
+                number: {valueformat: '0.f'}
             }], {width: 400, height: 400})
             .then(function() {
                 checkNumbersScale(1, 'initialy at normal scale');
@@ -191,7 +191,7 @@ describe('Indicator plot', function() {
                     type: 'indicator',
                     mode: 'number+delta',
                     value: 1,
-                    valueformat: '0.f'
+                    number: {valueformat: '0.f'}
                 };
                 figure[numberType] = {font: {size: 100}};
                 Plotly.newPlot(gd, [figure], {width: 400, height: 400})
@@ -226,11 +226,11 @@ describe('Indicator plot', function() {
             }])
             .then(function() {
                 assertContent('220');
-                return Plotly.restyle(gd, 'valueformat', '0.3f');
+                return Plotly.restyle(gd, 'number.valueformat', '0.3f');
             })
             .then(function() {
                 assertContent('220.000');
-                return Plotly.restyle(gd, 'valueformat', '$');
+                return Plotly.restyle(gd, 'number.valueformat', '$');
             })
             .then(function() {
                 assertContent('$220');

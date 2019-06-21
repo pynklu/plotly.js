@@ -40,7 +40,7 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     var auto = [];
     var bignumberFontSize;
     if(traceOut._hasNumber) {
-        coerce('valueformat');
+        coerce('number.valueformat');
         coerce('number.font.color', layout.font.color);
         coerce('number.font.family', layout.font.family);
         coerce('number.font.size', 'auto');

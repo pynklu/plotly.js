@@ -73,7 +73,9 @@
       }
     },
     "value": 35,
-    "valueformat": "0"
+    "number": {
+      "valueformat": "0"
+    }
   }, {
     "domain": {
       "x": [0.25, 1],

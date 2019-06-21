@@ -3,9 +3,10 @@
     "domain": {"x": [0, 0.5], "y": [0, 0.5]},
     "type": "indicator",
     "mode": "number+delta",
+    "align": "left",
     "number": {
-      "align": "middle",
-      "suffix": "km/h"
+      "suffix": "km/h",
+      "font": {"size": 20}
     },
     "value": 43,
     "delta": {
@@ -16,9 +17,10 @@
     "domain": {"x": [0, 0.5], "y": [0.5, 1.0]},
     "type": "indicator",
     "mode": "number+delta",
+    "align": "right",
     "number": {
-      "align": "middle",
-      "suffix": "km/h"
+      "suffix": "km/h",
+      "font": {"size": 20}
     },
     "value": 43,
     "delta": {
@@ -29,9 +31,10 @@
     "domain": {"x": [0.5, 1.0], "y": [0, 0.5]},
     "type": "indicator",
     "mode": "number+delta",
+    "align": "left",
     "number": {
-      "align": "middle",
-      "suffix": "km/h"
+      "suffix": "km/h",
+      "font": {"size": 20}
     },
     "value": 43,
     "delta": {
@@ -42,9 +45,10 @@
     "domain": {"x": [0.5, 1.0], "y": [0.5, 1.0]},
     "type": "indicator",
     "mode": "number+delta",
+    "align": "right",
     "number": {
-      "align": "middle",
-      "suffix": "km/h"
+      "suffix": "km/h",
+      "font": {"size": 20}
     },
     "value": 43,
     "delta": {
@@ -54,8 +58,8 @@
   }],
   "layout": {
     "paper_bgcolor": "orange",
-    "width": 600,
-    "height": 200,
+    "width": 400,
+    "height": 100,
     "margin": {"t": 0, "b": 0, "l": 0, "r": 0},
     "shapes": [{
       "type": "rect",

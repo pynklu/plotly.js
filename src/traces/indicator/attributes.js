@@ -113,17 +113,6 @@ module.exports = {
             'Sets the number to be displayed.'
         ].join(' ')
     },
-    valueformat: {
-        valType: 'string',
-        dflt: '.3s',
-        role: 'info',
-        editType: 'plot',
-        description: [
-            'Sets the value formatting rule using d3 formatting mini-language',
-            'which is similar to those of Python. See',
-            'https://github.com/d3/d3-format/blob/master/README.md#locale_format'
-        ].join(' ')
-    },
     align: {
         valType: 'enumerated',
         values: ['left', 'center', 'right'],
@@ -184,6 +173,17 @@ module.exports = {
         editType: 'plot'
     },
     number: {
+        valueformat: {
+            valType: 'string',
+            dflt: '.3s',
+            role: 'info',
+            editType: 'plot',
+            description: [
+                'Sets the value formatting rule using d3 formatting mini-language',
+                'which is similar to those of Python. See',
+                'https://github.com/d3/d3-format/blob/master/README.md#locale_format'
+            ].join(' ')
+        },
         font: extendFlat({}, textFontAttrs, {
             description: [
                 'Set the font used to display main number'

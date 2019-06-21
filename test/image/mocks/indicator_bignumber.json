@@ -65,7 +65,8 @@
       "mode": "number+delta",
       "delta": {
         "reference": 400,
-        "relative": true
+        "relative": true,
+        "position": "top"
       },
       "gauge": {
         "bgcolor": "rgba(255, 255, 255, 0.25)"
