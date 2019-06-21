@@ -52,19 +52,23 @@ function fileSaver(url, name, format) {
         }
 
         if(canUseSaveLink) {
-            blob = helpers.createBlob(url, format);
-            objectUrl = helpers.createObjectURL(blob);
+            try {
+                blob = helpers.createBlob(url, format);
+                objectUrl = helpers.createObjectURL(blob);
 
-            saveLink.href = objectUrl;
-            saveLink.download = name;
-            document.body.appendChild(saveLink);
-            saveLink.click();
+                saveLink.href = objectUrl;
+                saveLink.download = name;
+                document.body.appendChild(saveLink);
+                saveLink.click();
 
-            document.body.removeChild(saveLink);
-            helpers.revokeObjectURL(objectUrl);
-            blob = null;
+                document.body.removeChild(saveLink);
+                helpers.revokeObjectURL(objectUrl);
+                blob = null;
 
-            return resolve(name);
+                return resolve(name);
+            } catch(e) {
+                reject(new Error('createObjectURL error'));
+            }
         }
 
         reject(new Error('download error'));

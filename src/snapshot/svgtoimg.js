@@ -48,8 +48,12 @@ function svgToImg(opts) {
         if(format === 'svg' || Lib.isIE9orBelow() || Lib.isSafari()) {
             url = helpers.encodeSVG(svg);
         } else {
-            svgBlob = helpers.createBlob(svg, 'svg');
-            url = helpers.createObjectURL(svgBlob);
+            try {
+                svgBlob = helpers.createBlob(svg, 'svg');
+                url = helpers.createObjectURL(svgBlob);
+            } catch(e) {
+                reject(new Error('createObjectURL error'));
+            }
         }
 
         canvas.width = w1;
